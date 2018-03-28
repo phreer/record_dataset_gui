@@ -10,8 +10,8 @@ Intel Realsense SDK
 Android Studio 2.3
 Android SDK API Level 25
 
-Realsense SDK 可以在[这个地址]()下载.
-OpenCV 可以在[这个地址]()下载.
+Realsense SDK 可以在[这个地址](https://pan.baidu.com/s/1ufNhnLiya_17Mp17_p514w)下载.
+OpenCV 可以在[这个地址](https://pan.baidu.com/s/11nCLgG5aUTlNQXdQmWc2DA)下载.
 关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章]()
 
 ## 关于 smart watch
