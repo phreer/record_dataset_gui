@@ -1,0 +1,6 @@
+﻿  myo_collect.cpp
+c:\users\a8228771\desktop\myo_temp\myo_data\include\myo\cxx\impl\../detail/ThrowOnError.hpp(39): warning C4297: “myo::ThrowOnError::~ThrowOnError”: 假定函数不引发异常，但确实发生了
+  c:\users\a8228771\desktop\myo_temp\myo_data\include\myo\cxx\impl\../detail/ThrowOnError.hpp(39): note: 析构函数或释放器具有一个(可能是隐含的)非引发异常规范
+c:\users\a8228771\desktop\myo_temp\myo_data\include\myo\cxx\impl\../detail/ThrowOnError.hpp(45): warning C4297: “myo::ThrowOnError::~ThrowOnError”: 假定函数不引发异常，但确实发生了
+  c:\users\a8228771\desktop\myo_temp\myo_data\include\myo\cxx\impl\../detail/ThrowOnError.hpp(45): note: 析构函数或释放器具有一个(可能是隐含的)非引发异常规范
+  myo_data.vcxproj -> C:\Users\a8228771\Desktop\myo_temp\myo_data\x64\Debug\myo_data.exe

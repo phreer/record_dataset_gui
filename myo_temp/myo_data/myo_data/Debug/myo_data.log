@@ -1,0 +1,29 @@
+﻿  myo_collect.cpp
+c:\users\a8228771\desktop\myo_temp\myo_data\myo_data\myo\cxx\detail\throwonerror.hpp(39): warning C4297: “myo::ThrowOnError::~ThrowOnError”: 假定函数不引发异常，但确实发生了
+  c:\users\a8228771\desktop\myo_temp\myo_data\myo_data\myo\cxx\detail\throwonerror.hpp(39): note: 析构函数或释放器具有一个(可能是隐含的)非引发异常规范
+c:\users\a8228771\desktop\myo_temp\myo_data\myo_data\myo\cxx\detail\throwonerror.hpp(45): warning C4297: “myo::ThrowOnError::~ThrowOnError”: 假定函数不引发异常，但确实发生了
+  c:\users\a8228771\desktop\myo_temp\myo_data\myo_data\myo\cxx\detail\throwonerror.hpp(45): note: 析构函数或释放器具有一个(可能是隐含的)非引发异常规范
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_error_cstring，该符号在函数 "public: __thiscall myo::ThrowOnError::~ThrowOnError(void)" (??1ThrowOnError@myo@@QAE@XZ) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_error_kind，该符号在函数 "public: __thiscall myo::ThrowOnError::~ThrowOnError(void)" (??1ThrowOnError@myo@@QAE@XZ) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_free_error_details，该符号在函数 "public: __thiscall myo::ThrowOnError::~ThrowOnError(void)" (??1ThrowOnError@myo@@QAE@XZ) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_init_hub，该符号在函数 "public: __thiscall myo::Hub::Hub(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (??0Hub@myo@@QAE@ABV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_shutdown_hub，该符号在函数 "public: __thiscall myo::Hub::~Hub(void)" (??1Hub@myo@@QAE@XZ) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_set_stream_emg，该符号在函数 "public: void __thiscall myo::Myo::setStreamEmg(enum myo::Myo::StreamEmgType)" (?setStreamEmg@Myo@myo@@QAEXW4StreamEmgType@12@@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_type，该符号在函数 "public: static enum libmyo_handler_result_t __cdecl `public: class myo::Myo * __thiscall myo::Hub::waitForMyo(unsigned int)'::`2'::local::handler(void *,void const *)" (?handler@local@?1??waitForMyo@Hub@myo@@QAEPAVMyo@4@I@Z@SA?AW4libmyo_handler_result_t@@PAXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_timestamp，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_myo，该符号在函数 "public: static enum libmyo_handler_result_t __cdecl `public: class myo::Myo * __thiscall myo::Hub::waitForMyo(unsigned int)'::`2'::local::handler(void *,void const *)" (?handler@local@?1??waitForMyo@Hub@myo@@QAEPAVMyo@4@I@Z@SA?AW4libmyo_handler_result_t@@PAXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_firmware_version，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_arm，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_x_direction，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_warmup_state，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_warmup_result，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_rotation_on_arm，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_orientation，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_accelerometer，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_gyroscope，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_pose，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_rssi，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_battery_level，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_event_get_emg，该符号在函数 "protected: void __thiscall myo::Hub::onDeviceEvent(void const *)" (?onDeviceEvent@Hub@myo@@IAEXPBX@Z) 中被引用
+myo_collect.obj : error LNK2019: 无法解析的外部符号 __imp__libmyo_run，该符号在函数 "public: void __thiscall myo::Hub::run(unsigned int)" (?run@Hub@myo@@QAEXI@Z) 中被引用
+C:\Users\a8228771\Desktop\myo_temp\myo_data\Debug\myo_data.exe : fatal error LNK1120: 23 个无法解析的外部命令

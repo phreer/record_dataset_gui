@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myo_data", "myo_data\myo_data.vcxproj", "{A43E68FC-D939-42F0-A343-E30EA2F97B43}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Debug|x64.ActiveCfg = Debug|x64
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Debug|x64.Build.0 = Debug|x64
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Debug|x86.ActiveCfg = Debug|Win32
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Debug|x86.Build.0 = Debug|Win32
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Release|x64.ActiveCfg = Release|x64
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Release|x64.Build.0 = Release|x64
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Release|x86.ActiveCfg = Release|Win32
+		{A43E68FC-D939-42F0-A343-E30EA2F97B43}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63BD5DD8-E708-455B-9C2C-067C14387726}
+	EndGlobalSection
+EndGlobal
