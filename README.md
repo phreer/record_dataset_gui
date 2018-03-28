@@ -14,7 +14,7 @@ Realsense SDK 可以在[这个地址](https://pan.baidu.com/s/1ufNhnLiya_17Mp17_
 
 OpenCV 可以在[这个地址](https://pan.baidu.com/s/11nCLgG5aUTlNQXdQmWc2DA)下载.
 
-关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章](http://localhost:4000/2018/03/28/setup_opencv_and_basic_usage.html)
+关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章](https://phreer.github.io/2018/03/28/setup_opencv_and_basic_usage.html)
 
 ## 关于 Myo 的配置
 Myo SDK 同样包含了 lib 文件和 include 目录, 配置方法与 OpenCV 相似. 唯一不太一样的地方是需要**把动态链接文件放到生成可执行文件的目录下**.
