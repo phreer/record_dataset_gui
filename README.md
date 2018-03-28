@@ -32,3 +32,4 @@ Myo 和 PC 连接需要安装连接程序, 可以通过[这里](https://pan.baid
 ## 其他说明
 网络编程部分使用 winsock2 api, 可能需要安装 Visual Studio 才能使用, 我不太确定, 我使用的是 VS2015.
 其实 Qt 本身提供了网络编程 api, 或许更容易使用, 但因为我之前是在 VS 上面写的, 所以用了 winsock.
+对应的 Android 端程序请见[这个项目](https://github.com/Phreer/getAccelearationRound).
