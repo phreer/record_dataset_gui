@@ -23,7 +23,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 INCLUDEPATH += "C:\Program Files\opencv\build\include" \
 "E:\Program Files (x86)\Intel\RSSDK\include" \
-"E:\Program Files (x86)\Intel\RSSDK\sample\common\include"
+"E:\Program Files (x86)\Intel\RSSDK\sample\common\include" \
+"C:\Users\Phree\Desktop\c++\record_v0_1\include"
 
 LIBS += -lws2_32 \
 -L"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\x64" \
@@ -38,7 +39,9 @@ LIBS += -lws2_32 \
 -loleaut32 \
 -luuid \
 -lodbc32 \
--lodbccp32
+-lodbccp32 \
+-L"C:\Users\Phree\Desktop\c++\record_v0_1\lib" \
+-lmyo64
 
 CONFIG(debug, debug|release): {
 LIBS += -L"C:\Program Files\opencv\build\x64\vc14\lib" \
@@ -62,7 +65,8 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     utils.cpp \
-    tcp_reciever.cpp
+    tcp_reciever.cpp \
+    myodatacollector.cpp
 
 HEADERS += \
         mainwindow.h \

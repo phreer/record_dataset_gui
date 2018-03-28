@@ -79,11 +79,15 @@ MainWindow::MainWindow(QWidget *parent) :
     //connect signals to slots, which means when a signal sent(button clicked here), the corresponding slot will be called
     connect(timer, SIGNAL(timeout()), this, SLOT(readFrame()));
     connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
-    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
-    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
+    connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
+    //connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
+    //connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
+    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startTimer()));
+
 
     connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
-    connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
+    //connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopRealsense()));
+    //connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
     connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
 
     connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
@@ -99,26 +103,60 @@ MainWindow::~MainWindow(){
  * used for recording frame after a specific time interval
  */
 void MainWindow::startTimer(){
-    timer->start(1000/frameRate);
+    timer->start(1);
+}
+
+void MainWindow::startMyo(){
+try {
+    // First, we create a Hub with our application identifier. Be sure not to use the com.example namespace when
+    // publishing your application. The Hub provides access to one or more Myos.
+    hub = new myo::Hub("com.example.emg-data-sample");
+    std::cout << "Attempting to find a Myo..." << std::endl;
+    // Next, we attempt to find a Myo to use. If a Myo is already paired in Myo Connect, this will return that Myo
+    // immediately.
+    // waitForMyo() takes a timeout value in milliseconds. In this case we will try to find a Myo for 10 seconds, and
+    // if that fails, the function will return a null pointer.
+    a_myo = hub->waitForMyo(10000);
+    // If waitForMyo() returned a null pointer, we failed to find a Myo, so exit with an error message.
+    if (!a_myo) {
+        throw std::runtime_error("Unable to find a Myo!");
+    }
+    // We've found a Myo.
+    std::cout << "Connected to a Myo armband!" << std::endl << std::endl;
+    // Next we enable EMG streaming on the found Myo.
+    a_myo->setStreamEmg(myo::Myo::streamEmgEnabled);
+    // Hub::addListener() takes the address of any object whose class inherits from DeviceListener, and will cause
+    // Hub::run() to send events to all registered device listeners.
+    hub->addListener(&collector);
+}catch(const std::exception& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    std::cerr << "Press enter to continue.";
+    std::cin.ignore();
+}
 }
 
 void MainWindow::startCamera(){
-    char *FILE_NAME = getFilename();
-    if(!capture.isOpened()) capture.open(0);
-    writer.open(FILE_NAME, CV_FOURCC('D','I','V','X'), frameRate, \
-                cv::Size(int(capture.get(CV_CAP_PROP_FRAME_WIDTH)), int(capture.get(CV_CAP_PROP_FRAME_HEIGHT))),\
-                true);
-
+    char FILE_NAME[] = "test.avi";
+    if(!capture.isOpened()) capture.open(3);
+    if(capture.isOpened()){
+        double fps = capture.get(CV_CAP_PROP_FPS);
+        printf("%f", fps);
+        writer.open(FILE_NAME, CV_FOURCC('D','I','V','X'), frameRate, \
+                    cv::Size(int(capture.get(CV_CAP_PROP_FRAME_WIDTH)), int(capture.get(CV_CAP_PROP_FRAME_HEIGHT))),\
+                    true);
+    }else{
+        printf("Unable to open capture!");
+    }
 }
 
 /*
  * record stream and preview on the screen
  * synchronized with Timer
  * in fact I am not sure whether this would work properly ?
+ * seems my webcam can only support 30 fps
  */
-void MainWindow::readFrame()
-{
-
+void MainWindow::readFrame(){
+    printf("readFrame called");
     if(capture.isOpened()){
         capture >> img;
     }
@@ -131,29 +169,41 @@ void MainWindow::readFrame()
         ui->label->show();
     }
 
-    //this function will be blocked untill all frames are available
-    //unless you set its param wait_all false
-    pxcSenseManager->AcquireFrame(true);
-    PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
+    //QuerySample function will NULL untill all frames are available
+    //unless you set its param ifall false
+//    pxcSenseManager->AcquireFrame();
+//    PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
+//    if(sample){
+//        frameIR = PXCImage2CVMat(sample->ir, PXCImage::PIXEL_FORMAT_Y8);
+//        frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
+//        PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
 
-    frameIR = PXCImage2CVMat(sample->ir, PXCImage::PIXEL_FORMAT_Y8);
-    frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
-    PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
+//        writerIrRe << frameIR;
+//        writerColorRe << frameColor;
+//        writerDepthRe << frameDepth;
 
-    writerIrRe << frameIR;
-    writerColorRe << frameColor;
-    writerDepthRe << frameDepth;
+//        //show depth image in label2
+//        label2Image = new QImage((const uchar*)(frameDepth.data), \
+//                                 frameDepth.cols, \
+//                                 frameDepth.rows, \
+//                                 QImage::Format_Grayscale8);
+//        ui->label_2->setPixmap(QPixmap::fromImage(*label2Image));
+//        ui->label_2->show();
 
-    //show depth image in label2
-    label2Image = new QImage((const uchar*)(frameDepth.data), \
-                             frameDepth.cols, \
-                             frameDepth.rows, \
-                             QImage::Format_Grayscale8);
-    ui->label_2->setPixmap(QPixmap::fromImage(*label2Image));
-    ui->label_2->show();
+//        //clean up consumed frame
+//        pxcSenseManager->ReleaseFrame();
+//    }
+    if(a_myo){
+        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
+        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
+        hub->run(1000 / 10);
+        // After processing events, we call the print() member function we defined above to print out the values we've
+        // obtained from any events that have occurred.
+        collector.print();
+        //collector.write();
+        collector.write();
+    }
 
-    //clean up consumed frame
-    pxcSenseManager->ReleaseFrame();
 }
 
 void MainWindow::stopTimer(){
@@ -207,14 +257,16 @@ bool MainWindow::connect2Wear(){
         if (::connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == SOCKET_ERROR) {
             printf("main: unable to connect to remote server. %ld", WSAGetLastError());
             connected = false;
+        }else{
+            connected = true;
+            send_command(serv_sock, hello_c);
+            if(!recieveServOn) {
+                reciever_thread.start();
+                recieveServOn = true;
+            }
+            if(!reciever_thread.isRunning()) reciever_thread.start();
         }
-        connected = true;
-        send_command(serv_sock, hello_c);
-        if(!recieveServOn) {
-            reciever_thread.start();
-            recieveServOn = true;
-        }
-        if(!reciever_thread.isRunning()) reciever_thread.start();
+
         return connected;
     }
 }
@@ -246,7 +298,12 @@ void MainWindow::startRealsense(){
                                   size.width, \
                                   size.height, \
                                   frameRate);
-    pxcSenseManager->Init();
+    if(pxcSenseManager->Init() == pxcStatus::PXC_STATUS_NO_ERROR){
+        printf("Init successfully.");
+    }else{
+        printf("Init failed!");
+    }
+    printf("Realsense Enabled");
 }
 
 void MainWindow::disconnect2Wear(){

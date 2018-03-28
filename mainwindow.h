@@ -11,6 +11,7 @@
 #include "tcp_reciever.h"
 #include "tcp_controller.h"
 #include "pxcsensemanager.h"
+#include "myodatacollector.cpp"
 
 namespace Ui {
 class MainWindow;
@@ -47,12 +48,16 @@ private:
     struct sockaddr_in serv_addr;
 
     tcp_reciever reciever_thread;
+    myo::Hub *hub;
+    myo::Myo* a_myo;
+    DataCollector collector;
 
 private slots:
     void startCamera();
     void startRealsense();
     void startWear();
     void startTimer();
+    void startMyo();
 
     void readFrame();
 
