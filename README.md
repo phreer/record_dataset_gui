@@ -12,12 +12,19 @@ Android SDK API Level 25
 
 Realsense SDK 可以在[这个地址](https://pan.baidu.com/s/1ufNhnLiya_17Mp17_p514w)下载.
 OpenCV 可以在[这个地址](https://pan.baidu.com/s/11nCLgG5aUTlNQXdQmWc2DA)下载.
-myo的SDK可以在[这个地址](https://developer.thalmic.com/downloads)
+myo的SDK可以在[这个地址](https://developer.thalmic.com/downloads)下载.
 关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章]()
 关于Myo的API Reference 可以参照[这个地址](https://developer.thalmic.com/docs/api_reference/platform/index.html)
 
+### 关于Myo开发环境的配置
+在进行myo数据采集开发时采用的环境是VS2017，解决方案平台选择x64.
+在项目设置C/C++中设置附加包含目录`..\include`,include文件夹的内容由下载的SDK里给出.链接器设置里的附加库目录写入`..\lib`，lib文件夹的内容也由SDK给出，然后在链接器的输入选项添加myo64.lib附加依赖项。
+include与lib放在与CPP的上一级目录，myo64.lib与exe文件同目录
+
 ## 关于 smart watch
 我们所使用的 smart watch 基于 Android 平台, 因此采用 WiFi 进行通信. 基本的思路类似于 FTP, 使用两个套接字, 一个用于发送控制命令(开始记录, 结束记录, 传输数据等), PC 作为 Client, smart watch 为 Server. 另一个用于接收数据, PC 为 Server 接受 smart watch 的请求, 该部分使用一个单独的线程一直运行.
+
+
 
 ## 文件结构
 - **record_v0_1.pro** 包含 include path, lib path, 以配置 winsock, opencv, realsense sdk等.
