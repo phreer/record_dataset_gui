@@ -2,17 +2,23 @@
 本应用以 Qt5 为平台, 用于采集人体手势数据. 调用的外设有普通摄像头, Intel Realsense F200, 基于 Android 的智能手表, Myo.
 
 ## 环境
-Windows 10 64bit
-Qt Creator 4.5.2
-Qt5
-Intel Realsense DCM F200 1.3.27.52404
-Intel Realsense SDK
-Android Studio 2.3
-Android SDK API Level 25
+- Windows 10 64bit
+- Qt Creator 4.5.2
+- Qt5
+- Intel Realsense DCM F200 1.3.27.52404
+- Intel Realsense SDK
+- Android Studio 2.3
+- Android SDK API Level 25
 
 Realsense SDK 可以在[这个地址](https://pan.baidu.com/s/1ufNhnLiya_17Mp17_p514w)下载.
+
 OpenCV 可以在[这个地址](https://pan.baidu.com/s/11nCLgG5aUTlNQXdQmWc2DA)下载.
-关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章]()
+
+关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章](http://localhost:4000/2018/03/28/setup_opencv_and_basic_usage.html)
+
+## 关于 Myo 的配置
+Myo SDK 同样包含了 lib 文件和 include 目录, 配置方法与 OpenCV 相似. 唯一不太一样的地方是需要**把动态链接文件放到生成可执行文件的目录下**.
+Myo 和 PC 连接需要安装连接程序, 可以通过[这里](https://pan.baidu.com/s/1HyzBLp25o5lQCWQOWfDi4A)下载.
 
 ## 关于 smart watch
 我们所使用的 smart watch 基于 Android 平台, 因此采用 WiFi 进行通信. 基本的思路类似于 FTP, 使用两个套接字, 一个用于发送控制命令(开始记录, 结束记录, 传输数据等), PC 作为 Client, smart watch 为 Server. 另一个用于接收数据, PC 为 Server 接受 smart watch 的请求, 该部分使用一个单独的线程一直运行.
