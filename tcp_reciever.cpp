@@ -21,6 +21,7 @@ int64_t ntoh64(void *ptr){
     char tmp_buffer[8];
     for(int i=0; i<8; i++){
         tmp_buffer[7-i] = *(cptr+i);
+        printf("%x", *(cptr+i));
     }
     int64_t res = *((int64_t*)tmp_buffer);
     return res;
@@ -52,7 +53,7 @@ void tcp_reciever::run(){
         int64_t n_left = 8;
         while (n_left > 0) {
             if ((n_read = recv(data_sock, recv_buffer+off, n_left, 0)) < 0) {
-                printf("main: recieve length failed.");
+                printf("main: recieve length failed.\n");
                 exit(-1);
             }
             n_left -= n_read;
@@ -60,23 +61,23 @@ void tcp_reciever::run(){
         }
 
 
-        u_long *length = (u_long*)recv_buffer;
-        n_left = ntohll(*length);
+        int64_t *length = (int64_t*)recv_buffer;
+        n_left = ntoh64(length);
 
-        printf("Length: %d", n_left);
+        printf("Length: %d\n", n_left);
         char filename[FILENAME_SIZE];
         time_t ctime;
         time(&ctime);
         sprintf(filename, "%d.txt", ctime);
         FILE *file = fopen(filename, "w+");
         if (file == NULL) {
-            printf("main: open file failed.");
+            printf("main: open file failed.\n");
             exit(-1);
         }
         //recieve file
         while (n_left > 0) {
             if ((n_read = recv(data_sock, recv_buffer, BUFFER_SIZE, 0)) < 0) {
-                printf("main: recieve file failed. %ld", WSAGetLastError());
+                printf("main: recieve file failed. %ld\n", WSAGetLastError());
                 exit(-1);
             }
             fwrite(recv_buffer, sizeof(char), n_read, file);
