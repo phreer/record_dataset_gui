@@ -12,7 +12,6 @@
 #include "utils.cpp"
 #include "tcp_reciever.cpp"
 
-
 /*
  * utility function to transfer realsense format image to opencv format Mat
  * params:
@@ -77,22 +76,31 @@ MainWindow::MainWindow(QWidget *parent) :
     frameDepth = cv::Mat::zeros(size, CV_8UC1);
 
     //connect signals to slots, which means when a signal sent(button clicked here), the corresponding slot will be called
-    connect(timer, SIGNAL(timeout()), this, SLOT(readFrame()));
-    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
-    connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
-    //connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
-    //connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
-    connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startTimer()));
+    if(useCamera || useRealsense){
+        connect(timer, SIGNAL(timeout()), this, SLOT(readFrame()));
+        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startTimer()));
+        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
+    }
 
 
-    connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
-    //connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopRealsense()));
-    //connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
-    connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
+    if(useCamera){
+        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
+        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
+    }
+    if(useWear){
+        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
+        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
+        connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
+        connect(ui->disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect2Wear()));
+    }
+    if(useMyo){
+        connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
 
-    connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
-    connect(ui->disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect2Wear()));
-
+    }
+    if(useRealsense){
+        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
+        connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopRealsense()));
+    }
 }
 
 MainWindow::~MainWindow(){
@@ -103,7 +111,7 @@ MainWindow::~MainWindow(){
  * used for recording frame after a specific time interval
  */
 void MainWindow::startTimer(){
-    timer->start(1);
+    timer->start(10);
 }
 
 void MainWindow::startMyo(){
@@ -156,53 +164,59 @@ void MainWindow::startCamera(){
  * seems my webcam can only support 30 fps
  */
 void MainWindow::readFrame(){
-    printf("readFrame called");
-    if(capture.isOpened()){
-        capture >> img;
+    printf("readFrame called\n");
+    if(useCamera){
+        if(capture.isOpened()){
+            capture >> img;
+        }
+        if(!img.empty()){
+            cv::cvtColor(img, img, CV_BGR2RGB);
+            cv::flip(img, img, 1);
+            writer << img;
+            image = new QImage((const uchar*) (img.data), img.cols, img.rows, QImage::Format_RGB888);
+            ui->label->setPixmap(QPixmap::fromImage(*image));
+            ui->label->show();
+        }
     }
-    if(!img.empty()){
-        cv::cvtColor(img, img, CV_BGR2RGB);
-        cv::flip(img, img, 1);
-        writer << img;
-        image = new QImage((const uchar*) (img.data), img.cols, img.rows, QImage::Format_RGB888);
-        ui->label->setPixmap(QPixmap::fromImage(*image));
-        ui->label->show();
+
+
+    if(useRealsense){
+        //QuerySample function will NULL untill all frames are available
+        //unless you set its param ifall false
+        pxcSenseManager->AcquireFrame();
+        PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
+        if(sample){
+            frameIR = PXCImage2CVMat(sample->ir, PXCImage::PIXEL_FORMAT_Y8);
+            frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
+            PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
+
+            writerIrRe << frameIR;
+            writerColorRe << frameColor;
+            writerDepthRe << frameDepth;
+
+            //show depth image in label2
+            label2Image = new QImage((const uchar*)(frameDepth.data), \
+                                     frameDepth.cols, \
+                                     frameDepth.rows, \
+                                     QImage::Format_Grayscale8);
+            ui->label_2->setPixmap(QPixmap::fromImage(*label2Image));
+            ui->label_2->show();
+
+            //clean up consumed frame
+            pxcSenseManager->ReleaseFrame();
     }
 
-    //QuerySample function will NULL untill all frames are available
-    //unless you set its param ifall false
-//    pxcSenseManager->AcquireFrame();
-//    PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
-//    if(sample){
-//        frameIR = PXCImage2CVMat(sample->ir, PXCImage::PIXEL_FORMAT_Y8);
-//        frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
-//        PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
-
-//        writerIrRe << frameIR;
-//        writerColorRe << frameColor;
-//        writerDepthRe << frameDepth;
-
-//        //show depth image in label2
-//        label2Image = new QImage((const uchar*)(frameDepth.data), \
-//                                 frameDepth.cols, \
-//                                 frameDepth.rows, \
-//                                 QImage::Format_Grayscale8);
-//        ui->label_2->setPixmap(QPixmap::fromImage(*label2Image));
-//        ui->label_2->show();
-
-//        //clean up consumed frame
-//        pxcSenseManager->ReleaseFrame();
+    }
+//    if(a_myo){
+//        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
+//        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
+//        hub->run(1000 / 10);
+//        // After processing events, we call the print() member function we defined above to print out the values we've
+//        // obtained from any events that have occurred.
+//        collector.print();
+//        //collector.write();
+//        collector.write();
 //    }
-    if(a_myo){
-        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
-        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
-        hub->run(1000 / 10);
-        // After processing events, we call the print() member function we defined above to print out the values we've
-        // obtained from any events that have occurred.
-        collector.print();
-        //collector.write();
-        collector.write();
-    }
 
 }
 
@@ -232,16 +246,24 @@ void MainWindow::takingPictures(){
 
 void MainWindow::startWear(){
     if(!connected) connect2Wear();
-    send_command(serv_sock, start_c);
+    if(connected) send_command(serv_sock, start_c);
 }
 
 
 
 void MainWindow::stopWearandRecv(){
     //request smart watch to transfer file
+    send_command(serv_sock, stop_c);
     send_command(serv_sock, send_c);
 }
 
+
+/*
+ * setup a socket and try to connect to the server(smart watch)
+ * connected will be set true if connect successfully
+ * return:
+ *      bool: true if connect successfully else false
+ */
 bool MainWindow::connect2Wear(){
     if(serv_sock==NULL || !send_command(serv_sock, hello_c)){
         memset(&send_buffer, 0, BUFFER_SIZE);
@@ -251,11 +273,11 @@ bool MainWindow::connect2Wear(){
             set_addr_s(&serv_addr, SERV_IP, SERV_PORT);
             serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (serv_sock == INVALID_SOCKET) {
-                printf("main: get socket failed. %ld", WSAGetLastError());
+                printf("main: get socket failed. %ld\n", WSAGetLastError());
             }
         }
         if (::connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == SOCKET_ERROR) {
-            printf("main: unable to connect to remote server. %ld", WSAGetLastError());
+            printf("main: unable to connect to remote server. %ld\n", WSAGetLastError());
             connected = false;
         }else{
             connected = true;
@@ -278,11 +300,11 @@ bool MainWindow::connect2Wear(){
 void MainWindow::startRealsense(){
     char filename_color[] = "getFilename(REALSENSE_COLOR).avi";
     char filename_ir[] = "getFilename(REALSENSE_IR).avi";
-    char filename_depth[] = "getFilename(REALSENSE_COLOR).avi";
+    char filename_depth[] = "getFilename(REALSENSE_DEPTH).avi";
 
     writerColorRe.open(filename_color, CV_FOURCC('D','I','V','X'), frameRate, size, true);
-    writerIrRe.open(filename_ir, CV_FOURCC('D','I','V','X'), frameRate, size, true);
-    writerDepthRe.open(filename_depth, CV_FOURCC('D','I','V','X'), frameRate, size, true);
+    writerIrRe.open(filename_ir, CV_FOURCC('D','I','V','X'), frameRate, size, false);
+    writerDepthRe.open(filename_depth, CV_FOURCC('D','I','V','X'), frameRate, size, false);
 
 
     pxcSenseManager = PXCSenseManager::CreateInstance();
@@ -299,11 +321,11 @@ void MainWindow::startRealsense(){
                                   size.height, \
                                   frameRate);
     if(pxcSenseManager->Init() == pxcStatus::PXC_STATUS_NO_ERROR){
-        printf("Init successfully.");
+        printf("startRealsense: Init successfully.\n");
     }else{
-        printf("Init failed!");
+        printf("startRealsense: Init failed!\n");
     }
-    printf("Realsense Enabled");
+    printf("startRealsense: Realsense Enabled\n");
 }
 
 void MainWindow::disconnect2Wear(){

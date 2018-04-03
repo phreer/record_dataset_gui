@@ -28,6 +28,12 @@ public:
 private:
     bool connected = false;
     bool recieveServOn = false;
+
+    bool useCamera = false;
+    bool useWear = true;
+    bool useMyo = false;
+    bool useRealsense = false;
+
     const float frameRate = 60;
     const cv::Size size = cv::Size(640, 480);
 
