@@ -66,13 +66,16 @@ SOURCES += \
         mainwindow.cpp \
     utils.cpp \
     tcp_reciever.cpp \
-    myodatacollector.cpp
+    myodatacollector.cpp \
+    camera_capture.cpp \
+    realsense_capture.cpp
 
 HEADERS += \
         mainwindow.h \
     tcp_controller.h \
-    ../tcp_controller/tcp_controller_v0.1/tcp_controller_v0.1/tcp_controller.h \
-    tcp_reciever.h
+    tcp_reciever.h \
+    camera_capture.h \
+    realsense_capture.h
 
 FORMS += \
         mainwindow.ui

@@ -12,38 +12,7 @@
 #include "utils.cpp"
 #include "tcp_reciever.cpp"
 
-/*
- * utility function to transfer realsense format image to opencv format Mat
- * params:
- *  pxcImage: pointer to PXCImage instance
- *  format: can be NULL or predefined PIXEL_FORMAT_... format
- * return:
- *  a desired Mat
- */
-cv::Mat PXCImage2CVMat(PXCImage *pxcImage, PXCImage::PixelFormat format){
-    PXCImage::ImageData data;
-    pxcImage->AcquireAccess(PXCImage::ACCESS_READ, format, &data);
-    int width = pxcImage->QueryInfo().width;
-    int height = pxcImage->QueryInfo().height;
 
-    if(!format)
-        format = pxcImage->QueryInfo().format;
-    int type;
-    switch(format){
-        case PXCImage::PIXEL_FORMAT_Y8:
-            type = CV_8UC1;
-            break;
-        case PXCImage::PIXEL_FORMAT_RGB24:
-            type = CV_8UC3;
-            break;
-        case PXCImage::PIXEL_FORMAT_DEPTH_F32:
-            type = CV_32FC1;
-            break;
-    }
-    cv::Mat ocvImage = cv::Mat(cv::Size(width, height), type, data.planes[0]);
-    pxcImage->ReleaseAccess(&data);
-    return ocvImage;
-}
 
 /*
  * used for acquiring a file name to save video stream
@@ -58,7 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    timer = new QTimer(this);
     image = new QImage();
 
     //setup winsock2
@@ -66,22 +34,10 @@ MainWindow::MainWindow(QWidget *parent) :
     WORD wsa_version = MAKEWORD(2, 2);
     int n_ret = WSAStartup(wsa_version, &wsa_data);
     if (n_ret != NO_ERROR) {
-        printf("main: startup wsa failed!");
+        printf("main: startup wsa failed!\n");
     }
 
     reciever_thread.start();
-    //initialize Mat to store image from realsense
-    frameIR = cv::Mat::zeros(size, CV_8UC1);
-    frameColor = cv::Mat::zeros(size, CV_8UC3);
-    frameDepth = cv::Mat::zeros(size, CV_8UC1);
-
-    //connect signals to slots, which means when a signal sent(button clicked here), the corresponding slot will be called
-    if(useCamera || useRealsense){
-        connect(timer, SIGNAL(timeout()), this, SLOT(readFrame()));
-        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startTimer()));
-        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
-    }
-
 
     if(useCamera){
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
@@ -107,54 +63,40 @@ MainWindow::~MainWindow(){
     delete ui;
 }
 
-/*
- * used for recording frame after a specific time interval
- */
-void MainWindow::startTimer(){
-    timer->start(10);
-}
-
 void MainWindow::startMyo(){
-try {
-    // First, we create a Hub with our application identifier. Be sure not to use the com.example namespace when
-    // publishing your application. The Hub provides access to one or more Myos.
-    hub = new myo::Hub("com.example.emg-data-sample");
-    std::cout << "Attempting to find a Myo..." << std::endl;
-    // Next, we attempt to find a Myo to use. If a Myo is already paired in Myo Connect, this will return that Myo
-    // immediately.
-    // waitForMyo() takes a timeout value in milliseconds. In this case we will try to find a Myo for 10 seconds, and
-    // if that fails, the function will return a null pointer.
-    a_myo = hub->waitForMyo(10000);
-    // If waitForMyo() returned a null pointer, we failed to find a Myo, so exit with an error message.
-    if (!a_myo) {
-        throw std::runtime_error("Unable to find a Myo!");
+    try {
+        // First, we create a Hub with our application identifier. Be sure not to use the com.example namespace when
+        // publishing your application. The Hub provides access to one or more Myos.
+        hub = new myo::Hub("com.example.emg-data-sample");
+        std::cout << "Attempting to find a Myo..." << std::endl;
+        // Next, we attempt to find a Myo to use. If a Myo is already paired in Myo Connect, this will return that Myo
+        // immediately.
+        // waitForMyo() takes a timeout value in milliseconds. In this case we will try to find a Myo for 10 seconds, and
+        // if that fails, the function will return a null pointer.
+        a_myo = hub->waitForMyo(10000);
+        // If waitForMyo() returned a null pointer, we failed to find a Myo, so exit with an error message.
+        if (!a_myo) {
+            throw std::runtime_error("Unable to find a Myo!");
+        }
+        // We've found a Myo.
+        std::cout << "Connected to a Myo armband!" << std::endl << std::endl;
+        // Next we enable EMG streaming on the found Myo.
+        a_myo->setStreamEmg(myo::Myo::streamEmgEnabled);
+        // Hub::addListener() takes the address of any object whose class inherits from DeviceListener, and will cause
+        // Hub::run() to send events to all registered device listeners.
+        hub->addListener(&collector);
+    }catch(const std::exception& e) {
+        std::cerr << "Error: " << e.what() << std::endl;
+        std::cerr << "Press enter to continue.";
+        std::cin.ignore();
     }
-    // We've found a Myo.
-    std::cout << "Connected to a Myo armband!" << std::endl << std::endl;
-    // Next we enable EMG streaming on the found Myo.
-    a_myo->setStreamEmg(myo::Myo::streamEmgEnabled);
-    // Hub::addListener() takes the address of any object whose class inherits from DeviceListener, and will cause
-    // Hub::run() to send events to all registered device listeners.
-    hub->addListener(&collector);
-}catch(const std::exception& e) {
-    std::cerr << "Error: " << e.what() << std::endl;
-    std::cerr << "Press enter to continue.";
-    std::cin.ignore();
-}
 }
 
 void MainWindow::startCamera(){
-    char FILE_NAME[] = "test.avi";
-    if(!capture.isOpened()) capture.open(3);
-    if(capture.isOpened()){
-        double fps = capture.get(CV_CAP_PROP_FPS);
-        printf("%f", fps);
-        writer.open(FILE_NAME, CV_FOURCC('D','I','V','X'), frameRate, \
-                    cv::Size(int(capture.get(CV_CAP_PROP_FRAME_WIDTH)), int(capture.get(CV_CAP_PROP_FRAME_HEIGHT))),\
-                    true);
-    }else{
-        printf("Unable to open capture!");
-    }
+    char filename[] = "test.avi";
+    camera_thread = new camera_capture(filename);
+    camera_thread->start();
+    connect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
 }
 
 /*
@@ -164,84 +106,47 @@ void MainWindow::startCamera(){
  * seems my webcam can only support 30 fps
  */
 void MainWindow::readFrame(){
-    printf("readFrame called\n");
-    if(useCamera){
-        if(capture.isOpened()){
-            capture >> img;
-        }
-        if(!img.empty()){
-            cv::cvtColor(img, img, CV_BGR2RGB);
-            cv::flip(img, img, 1);
-            writer << img;
-            image = new QImage((const uchar*) (img.data), img.cols, img.rows, QImage::Format_RGB888);
-            ui->label->setPixmap(QPixmap::fromImage(*image));
-            ui->label->show();
-        }
+    if(useMyo && a_myo){
+        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
+        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
+        hub->run(1000 / 10);
+        // After processing events, we call the print() member function we defined above to print out the values we've
+        // obtained from any events that have occurred.
+        collector.print();
+        //collector.write();
+        collector.write();
     }
-
-
-    if(useRealsense){
-        //QuerySample function will NULL untill all frames are available
-        //unless you set its param ifall false
-        pxcSenseManager->AcquireFrame();
-        PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
-        if(sample){
-            frameIR = PXCImage2CVMat(sample->ir, PXCImage::PIXEL_FORMAT_Y8);
-            frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
-            PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
-
-            writerIrRe << frameIR;
-            writerColorRe << frameColor;
-            writerDepthRe << frameDepth;
-
-            //show depth image in label2
-            label2Image = new QImage((const uchar*)(frameDepth.data), \
-                                     frameDepth.cols, \
-                                     frameDepth.rows, \
-                                     QImage::Format_Grayscale8);
-            ui->label_2->setPixmap(QPixmap::fromImage(*label2Image));
-            ui->label_2->show();
-
-            //clean up consumed frame
-            pxcSenseManager->ReleaseFrame();
-    }
-
-    }
-//    if(a_myo){
-//        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
-//        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
-//        hub->run(1000 / 10);
-//        // After processing events, we call the print() member function we defined above to print out the values we've
-//        // obtained from any events that have occurred.
-//        collector.print();
-//        //collector.write();
-//        collector.write();
-//    }
-
 }
 
-void MainWindow::stopTimer(){
-    timer->stop();
-}
 void MainWindow::stopCamera(){
-    if (capture.isOpened()){
-        capture.release();
-    }
-    if(writer.isOpened()){
-        writer.release();
-    }
-}
-void MainWindow::stopRealsense(){
-    if(pxcSenseManager->IsConnected()) pxcSenseManager->Release();
-    if(writerIrRe.isOpened()) writerIrRe.release();
-    if(writerColorRe.isOpened()) writerColorRe.release();
-    if(writerDepthRe.isOpened()) writerDepthRe.release();
+    disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
+    if(camera_thread->isRunning()) camera_thread->stop();
 }
 
-//test util, deprecated
-void MainWindow::takingPictures(){
-    image = new QImage((const uchar*) (img.data), img.cols, img.rows, QImage::Format_RGB888);
-    ui->label_2->setPixmap(QPixmap::fromImage(*image));
+/*
+ * start a new thread to record realsense stream
+ */
+void MainWindow::startRealsense(){
+    char filename_color[] = "getFilename(REALSENSE_COLOR).avi";
+    char filename_depth[] = "getFilename(REALSENSE_DEPTH).avi";
+
+    realsense_thread = new realsense_capture(filename_color, filename_depth);
+    realsense_thread->start();
+    connect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
+}
+
+void MainWindow::stopRealsense(){
+    disconnect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
+    if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
+}
+
+void MainWindow::updateUIlabel1(const QImage &image){
+    ui->label->setPixmap(QPixmap::fromImage(image));
+    ui->label->show();
+}
+void MainWindow::updateUIlabel2(const QImage &image){
+    ui->label_2->setPixmap(QPixmap::fromImage(image));
+    ui->label_2->show();
 }
 
 void MainWindow::startWear(){
@@ -253,8 +158,10 @@ void MainWindow::startWear(){
 
 void MainWindow::stopWearandRecv(){
     //request smart watch to transfer file
-    send_command(serv_sock, stop_c);
-    send_command(serv_sock, send_c);
+    if(connected){
+        send_command(serv_sock, stop_c);
+        send_command(serv_sock, send_c);
+    }
 }
 
 
@@ -293,40 +200,7 @@ bool MainWindow::connect2Wear(){
     }
 }
 
-/*
- * initialize Realsense
- * refer to Realsense SDK
- */
-void MainWindow::startRealsense(){
-    char filename_color[] = "getFilename(REALSENSE_COLOR).avi";
-    char filename_ir[] = "getFilename(REALSENSE_IR).avi";
-    char filename_depth[] = "getFilename(REALSENSE_DEPTH).avi";
 
-    writerColorRe.open(filename_color, CV_FOURCC('D','I','V','X'), frameRate, size, true);
-    writerIrRe.open(filename_ir, CV_FOURCC('D','I','V','X'), frameRate, size, false);
-    writerDepthRe.open(filename_depth, CV_FOURCC('D','I','V','X'), frameRate, size, false);
-
-
-    pxcSenseManager = PXCSenseManager::CreateInstance();
-    pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_IR, \
-                                  size.width, \
-                                  size.height, \
-                                  frameRate);
-    pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_COLOR, \
-                                  size.width, \
-                                  size.height, \
-                                  frameRate);
-    pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_DEPTH, \
-                                  size.width, \
-                                  size.height, \
-                                  frameRate);
-    if(pxcSenseManager->Init() == pxcStatus::PXC_STATUS_NO_ERROR){
-        printf("startRealsense: Init successfully.\n");
-    }else{
-        printf("startRealsense: Init failed!\n");
-    }
-    printf("startRealsense: Realsense Enabled\n");
-}
 
 void MainWindow::disconnect2Wear(){
     if(serv_sock) send_command(serv_sock, bye_c);

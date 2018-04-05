@@ -12,6 +12,9 @@
 #include "tcp_controller.h"
 #include "pxcsensemanager.h"
 #include "myodatacollector.cpp"
+#include "time.h"
+#include "camera_capture.h"
+#include "realsense_capture.h"
 
 namespace Ui {
 class MainWindow;
@@ -29,40 +32,32 @@ private:
     bool connected = false;
     bool recieveServOn = false;
 
-    bool useCamera = false;
-    bool useWear = true;
+    bool useCamera = true;
+    bool useWear = false;
     bool useMyo = false;
-    bool useRealsense = false;
+    bool useRealsense = true;
 
-    const float frameRate = 60;
-    const cv::Size size = cv::Size(640, 480);
 
     Ui::MainWindow *ui;
-    QTimer *timer;
     QImage *image;
     QImage *label2Image;
 
-    cv::VideoCapture capture;
-    cv::VideoWriter writer; //write camera stream
-    cv::VideoWriter writerColorRe, writerIrRe, writerDepthRe; //write realsense stream
-    cv::Mat img;
-    cv::Mat frameIR;
-    cv::Mat frameColor;
-    cv::Mat frameDepth;
     SOCKET serv_sock=NULL;
     PXCSenseManager *pxcSenseManager;
     struct sockaddr_in serv_addr;
 
-    tcp_reciever reciever_thread;
     myo::Hub *hub;
     myo::Myo* a_myo;
     DataCollector collector;
+
+    camera_capture *camera_thread;
+    realsense_capture *realsense_thread;
+    tcp_reciever reciever_thread;
 
 private slots:
     void startCamera();
     void startRealsense();
     void startWear();
-    void startTimer();
     void startMyo();
 
     void readFrame();
@@ -70,12 +65,12 @@ private slots:
     void stopCamera();
     void stopWearandRecv();
     void stopRealsense();
-    void stopTimer();
 
     bool connect2Wear();
     void disconnect2Wear();
 
-    void takingPictures();
+    void updateUIlabel1(const QImage &image);
+    void updateUIlabel2(const QImage &image);
 
 };
 
