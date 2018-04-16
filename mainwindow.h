@@ -11,10 +11,10 @@
 #include "tcp_reciever.h"
 #include "tcp_controller.h"
 #include "pxcsensemanager.h"
-#include "myodatacollector.cpp"
 #include "time.h"
 #include "camera_capture.h"
 #include "realsense_capture.h"
+#include "myothread.h"
 
 namespace Ui {
 class MainWindow;
@@ -35,7 +35,7 @@ private:
     bool useCamera = true;
     bool useWear = false;
     bool useMyo = false;
-    bool useRealsense = true;
+    bool useRealsense = false;
 
 
     Ui::MainWindow *ui;
@@ -52,6 +52,7 @@ private:
 
     camera_capture *camera_thread;
     realsense_capture *realsense_thread;
+    myothread *myo_thread;
     tcp_reciever reciever_thread;
 
 private slots:
@@ -60,11 +61,10 @@ private slots:
     void startWear();
     void startMyo();
 
-    void readFrame();
-
     void stopCamera();
     void stopWearandRecv();
     void stopRealsense();
+    void stopMyo();
 
     bool connect2Wear();
     void disconnect2Wear();

@@ -1,7 +1,7 @@
 #include "camera_capture.h"
 
 camera_capture::camera_capture(const char filename[]){
-    if(!cap.isOpened()) cap.open(3);
+    if(!cap.isOpened()) cap.open(0);
     if(!wrt.isOpened()) wrt.open(filename, CV_FOURCC('D','I','V','X'), frameRate, \
                                  cv::Size(int(cap.get(CV_CAP_PROP_FRAME_WIDTH)), \
                                           int(cap.get(CV_CAP_PROP_FRAME_HEIGHT))),\
