@@ -36,6 +36,7 @@ cv::Mat PXCImage2CVMat(PXCImage *pxcImage, PXCImage::PixelFormat format){
 
 
 realsense_capture::realsense_capture(const char filename_color[], const char filename_depth[]){
+    pxcStatus status;
     end = false;
     pCnt = cCnt = 0;
     time(&pTime);
@@ -44,14 +45,27 @@ realsense_capture::realsense_capture(const char filename_color[], const char fil
     this->writerDepthRe.open(filename_depth, CV_FOURCC('D','I','V','X'), frameRate, size, false);
     this->pxcSenseManager = PXCSenseManager::CreateInstance();
 
-    pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_COLOR, \
+    status = pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_COLOR, \
                                   size.width, \
                                   size.height, \
                                   frameRate);
-    pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_DEPTH, \
+                                  //PXCCapture::Device::STREAM_OPTION_STRONG_STREAM_SYNC);
+    if(status==pxcStatus::PXC_STATUS_NO_ERROR) {
+        printf("Enable realsense color stream successfully.\n");
+    }else{
+        printf("Unable realsense color stream!\n");
+    }
+    status = pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_DEPTH, \
                                   size.width, \
                                   size.height, \
                                   frameRate);
+                                  //PXCCapture::Device::STREAM_OPTION_STRONG_STREAM_SYNC);
+    if(status==pxcStatus::PXC_STATUS_NO_ERROR) {
+        printf("Enable realsense depth stream successfully.\n");
+    }else{
+        printf("Unable realsense depth stream!\n");
+    }
+
     if(pxcSenseManager->Init() == pxcStatus::PXC_STATUS_NO_ERROR){
         printf("startRealsense: Init successfully.\n");
     }else{
@@ -69,14 +83,15 @@ void realsense_capture::stop(){
 }
 
 void realsense_capture::run(){
-
+    // TODO: we should wait for realsense initialized completely
+    // so that we can run this
     for(;;){
         if(!end){
             //QuerySample function will NULL untill all frames are available
             //unless you set its param ifall false
-            pxcSenseManager->AcquireFrame();
+            if(pxcSenseManager->AcquireFrame(true)<pxcStatus::PXC_STATUS_NO_ERROR) break;
             PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
-            if(sample){
+            if(sample && !sample->IsEmpty()){
                 frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
                 PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
 

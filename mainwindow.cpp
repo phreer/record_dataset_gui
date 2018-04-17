@@ -47,6 +47,7 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
         connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
         connect(ui->disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect2Wear()));
+        connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(disconnect2Wear()));
     }
     if(useMyo){
         connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
@@ -69,6 +70,7 @@ void MainWindow::startMyo(){
 
 void MainWindow::stopMyo(){
     if(myo_thread->isRunning()) myo_thread->stop();
+    myo_thread = NULL;
 }
 
 void MainWindow::startCamera(){
@@ -81,6 +83,7 @@ void MainWindow::startCamera(){
 void MainWindow::stopCamera(){
     disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
     if(camera_thread->isRunning()) camera_thread->stop();
+    camera_thread = NULL;
 }
 
 /*
@@ -98,6 +101,7 @@ void MainWindow::startRealsense(){
 void MainWindow::stopRealsense(){
     disconnect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
     if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
+    realsense_thread = NULL;
 }
 
 

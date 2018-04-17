@@ -33,8 +33,8 @@ private:
     bool recieveServOn = false;
 
     bool useCamera = true;
-    bool useWear = false;
-    bool useMyo = false;
+    bool useWear = true;
+    bool useMyo = true;
     bool useRealsense = true;
 
 
