@@ -37,13 +37,12 @@ MainWindow::MainWindow(QWidget *parent) :
         printf("main: startup wsa failed!\n");
     }
 
-    reciever_thread.start();
-
     if(useCamera){
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
     }
     if(useWear){
+        reciever_thread.start();
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
         connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
@@ -51,7 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     if(useMyo){
         connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
-
+        connect(&timer, SIGNAL(timeout()), this, SLOT(readFrame()));
+        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
     }
     if(useRealsense){
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
@@ -64,6 +64,7 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::startMyo(){
+    timer.start(10);
     try {
         // First, we create a Hub with our application identifier. Be sure not to use the com.example namespace when
         // publishing your application. The Hub provides access to one or more Myos.
@@ -138,6 +139,10 @@ void MainWindow::startRealsense(){
 void MainWindow::stopRealsense(){
     disconnect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
     if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
+}
+
+void MainWindow::stopMyo(){
+    timer.stop();
 }
 
 void MainWindow::updateUIlabel1(const QImage &image){

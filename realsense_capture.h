@@ -30,7 +30,7 @@ private:
     time_t cTime, pTime;
     uint64_t cCnt, pCnt;
     const cv::Size size = cv::Size(640, 480);
-    const float frameRate = 30;
+    const float frameRate = 60;
 };
 
 #endif // REALSENSE_CAPTURE_H

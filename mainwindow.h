@@ -41,6 +41,7 @@ private:
     Ui::MainWindow *ui;
     QImage *image;
     QImage *label2Image;
+    QTimer timer;
 
     SOCKET serv_sock=NULL;
     PXCSenseManager *pxcSenseManager;
@@ -65,6 +66,7 @@ private slots:
     void stopCamera();
     void stopWearandRecv();
     void stopRealsense();
+    void stopMyo();
 
     bool connect2Wear();
     void disconnect2Wear();
