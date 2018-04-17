@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <fstream>
+#include <QTime>
 #include <myo\myo.hpp>
 class DataCollector : public myo::DeviceListener {
 public:
@@ -90,12 +91,11 @@ public:
         std::cout << std::flush;
     }
     // write experiment data into csv file
-    void write()    {
-        std::ofstream ofile;
-        ofile.open("Data.csv", std::ios::out | std::ios::app);
+    void write(std::ofstream &ofile) {
+        QTime currTime = QTime::currentTime();
+        ofile <<currTime.msecsSinceStartOfDay() << ",";
         ofile << "emgData:" << ",";
-        for (size_t i = 0; i < emgSamples.size(); i++)
-        {
+        for (size_t i = 0; i < emgSamples.size(); i++){
             std::ostringstream oss;
             oss << static_cast<int>(emgSamples[i]);
             std::string emgString = oss.str();
@@ -104,8 +104,8 @@ public:
         ofile << "OrientationData" << "," << "roll_w:"<< roll_w << ","<< "pitch_w:" << pitch_w << "," << "yaw_w :" << yaw_w << "," ;
         ofile << "AccelerometerData" << "," << "xdir:" << accx << "," << "ydir:" << accy << "," << "zdir:" << accz << ",";
         ofile << "GyroscopeData" << "," << "xdir:" << gyrx << "," << "ydir:" << gyry << "," << "zdir:" << gyrz << std::endl;
-        ofile.close();
     }
+
     // The values of these variable is set by on...() function above.
     std::array<int8_t, 8> emgSamples;
     int roll_w, pitch_w, yaw_w;

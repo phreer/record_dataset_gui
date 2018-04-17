@@ -50,8 +50,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     if(useMyo){
         connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
-        connect(&timer, SIGNAL(timeout()), this, SLOT(readFrame()));
-        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopTimer()));
+        connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopMyo()));
     }
     if(useRealsense){
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
@@ -64,33 +63,12 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::startMyo(){
-    timer.start(10);
-    try {
-        // First, we create a Hub with our application identifier. Be sure not to use the com.example namespace when
-        // publishing your application. The Hub provides access to one or more Myos.
-        hub = new myo::Hub("com.example.emg-data-sample");
-        std::cout << "Attempting to find a Myo..." << std::endl;
-        // Next, we attempt to find a Myo to use. If a Myo is already paired in Myo Connect, this will return that Myo
-        // immediately.
-        // waitForMyo() takes a timeout value in milliseconds. In this case we will try to find a Myo for 10 seconds, and
-        // if that fails, the function will return a null pointer.
-        a_myo = hub->waitForMyo(10000);
-        // If waitForMyo() returned a null pointer, we failed to find a Myo, so exit with an error message.
-        if (!a_myo) {
-            throw std::runtime_error("Unable to find a Myo!");
-        }
-        // We've found a Myo.
-        std::cout << "Connected to a Myo armband!" << std::endl << std::endl;
-        // Next we enable EMG streaming on the found Myo.
-        a_myo->setStreamEmg(myo::Myo::streamEmgEnabled);
-        // Hub::addListener() takes the address of any object whose class inherits from DeviceListener, and will cause
-        // Hub::run() to send events to all registered device listeners.
-        hub->addListener(&collector);
-    }catch(const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
-        std::cerr << "Press enter to continue.";
-        std::cin.ignore();
-    }
+    myo_thread = new myothread("test.csv");
+    myo_thread->start();
+}
+
+void MainWindow::stopMyo(){
+    if(myo_thread->isRunning()) myo_thread->stop();
 }
 
 void MainWindow::startCamera(){
@@ -98,25 +76,6 @@ void MainWindow::startCamera(){
     camera_thread = new camera_capture(filename);
     camera_thread->start();
     connect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
-}
-
-/*
- * record stream and preview on the screen
- * synchronized with Timer
- * in fact I am not sure whether this would work properly ?
- * seems my webcam can only support 30 fps
- */
-void MainWindow::readFrame(){
-    if(useMyo && a_myo){
-        // In each iteration of our main loop, we run the Myo event loop for a set number of milliseconds.
-        // In this case, we wish to update our display 100 times a second, so we run for 1000/10 milliseconds.
-        hub->run(1000 / 10);
-        // After processing events, we call the print() member function we defined above to print out the values we've
-        // obtained from any events that have occurred.
-        collector.print();
-        //collector.write();
-        collector.write();
-    }
 }
 
 void MainWindow::stopCamera(){
@@ -141,10 +100,10 @@ void MainWindow::stopRealsense(){
     if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
 }
 
-void MainWindow::stopMyo(){
-    timer.stop();
-}
 
+/*
+ * Display captured image on UI
+ */
 void MainWindow::updateUIlabel1(const QImage &image){
     ui->label->setPixmap(QPixmap::fromImage(image));
     ui->label->show();
@@ -158,8 +117,6 @@ void MainWindow::startWear(){
     if(!connected) connect2Wear();
     if(connected) send_command(serv_sock, start_c);
 }
-
-
 
 void MainWindow::stopWearandRecv(){
     //request smart watch to transfer file

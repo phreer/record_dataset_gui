@@ -62,6 +62,7 @@ LIBS += -L"D:\software\opencv\build\x64\vc14\lib" \
 }
 
 SOURCES += \
+	myothread.cpp \
         main.cpp \
         mainwindow.cpp \
     utils.cpp \
@@ -69,8 +70,9 @@ SOURCES += \
     myodatacollector.cpp \
     camera_capture.cpp \
     realsense_capture.cpp
-
+	
 HEADERS += \
+	myothread.h \
         mainwindow.h \
     tcp_controller.h \
     tcp_reciever.h \
