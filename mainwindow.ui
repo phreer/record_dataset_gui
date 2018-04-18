@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1280</width>
-    <height>728</height>
+    <height>736</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -17,7 +17,10 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Dataset Collector by Xin Zhang Lab</string>
+  </property>
+  <property name="autoFillBackground">
+   <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QPushButton" name="startButton">
@@ -31,32 +34,6 @@
     </property>
     <property name="text">
      <string>Start</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>640</width>
-      <height>640</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Camera Preview</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>640</x>
-      <y>0</y>
-      <width>640</width>
-      <height>640</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Realsense Depth Stream Preview</string>
     </property>
    </widget>
    <widget class="QPushButton" name="stopButton">
@@ -107,6 +84,108 @@
       <widget class="QLabel" name="state">
        <property name="text">
         <string>Not Connected</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1281</width>
+      <height>441</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="previewLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetFixedSize</enum>
+     </property>
+     <property name="leftMargin">
+      <number>2</number>
+     </property>
+     <property name="topMargin">
+      <number>2</number>
+     </property>
+     <property name="rightMargin">
+      <number>2</number>
+     </property>
+     <property name="bottomMargin">
+      <number>2</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="minimumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Camera1 Preview</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="minimumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Realsense Previw</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_3">
+       <property name="minimumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="baseSize">
+        <size>
+         <width>320</width>
+         <height>240</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Camera2 Previw</string>
        </property>
       </widget>
      </item>

@@ -8,13 +8,14 @@ class tcp_reciever : public QThread
 {
 public:
     tcp_reciever();
+    void stop();
+
 private:
     SOCKET recv_sock=NULL;
     SOCKET data_sock=NULL;
     bool end;
 
     void run();
-    void stop();
 };
 
 #endif // TCP_RECIEVER_H

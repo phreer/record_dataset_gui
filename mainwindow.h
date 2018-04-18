@@ -8,6 +8,8 @@
 #include "opencv/highgui.h"
 #include "opencv/cv.h"
 #include <QPainter>
+#include <QCloseEvent>
+
 #include "tcp_reciever.h"
 #include "tcp_controller.h"
 #include "pxcsensemanager.h"
@@ -73,6 +75,8 @@ private slots:
     void updateUIlabel1(const QImage &image);
     void updateUIlabel2(const QImage &image);
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

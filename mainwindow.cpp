@@ -47,7 +47,6 @@ MainWindow::MainWindow(QWidget *parent) :
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
         connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
         connect(ui->disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect2Wear()));
-        connect(this, SIGNAL(destroyed(QObject*)), this, SLOT(disconnect2Wear()));
     }
     if(useMyo){
         connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
@@ -109,12 +108,17 @@ void MainWindow::stopRealsense(){
  * Display captured image on UI
  */
 void MainWindow::updateUIlabel1(const QImage &image){
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    ui->label->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
     ui->label->show();
 }
 void MainWindow::updateUIlabel2(const QImage &image){
-    ui->label_2->setPixmap(QPixmap::fromImage(image));
+
+    ui->label_2->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
     ui->label_2->show();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event){
+    disconnect2Wear();
 }
 
 void MainWindow::startWear(){

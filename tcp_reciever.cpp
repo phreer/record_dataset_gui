@@ -45,12 +45,16 @@ void tcp_reciever::run(){
     if ((listen(recv_sock, 5)) == SOCKET_ERROR) {
         printf("tcp_reciever: listen failed. %ld\n", WSAGetLastError());
     }
+    unsigned long flag=1;
+    if(ioctlsocket(recv_sock, FIONBIO, &flag)!=0){
+        printf("tcp_reciever: unable to set recv_sock non-blocking. %ld\n", WSAGetLastError());
+    }
     for(;;){
         if(!end){
             data_sock = accept(recv_sock, (struct sockaddr *)&send_addr, &send_addr_len);
             if(data_sock == INVALID_SOCKET){
-                printf("tcp_reciever: get INVALID SOCK. %ld\n", WSAGetLastError());
-                break;
+                if(!WSAGetLastError()==WSAEWOULDBLOCK) printf("tcp_reciever: get INVALID SOCK. %ld\n", WSAGetLastError());
+                continue;
             }
 
             //get the length of file
@@ -97,7 +101,6 @@ void tcp_reciever::run(){
     }
 }
 
-void tcp_reciever::stop()
-{
+void tcp_reciever::stop(){
     end = true;
 }
