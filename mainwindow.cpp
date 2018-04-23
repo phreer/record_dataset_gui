@@ -63,7 +63,7 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::startMyo(){
-    myo_thread = new myothread("test.csv");
+    myo_thread = new myothread("news_myo.csv");
     myo_thread->start();
 }
 
@@ -89,8 +89,8 @@ void MainWindow::stopCamera(){
  * start a new thread to record realsense stream
  */
 void MainWindow::startRealsense(){
-    char filename_color[] = "getFilename(REALSENSE_COLOR).avi";
-    char filename_depth[] = "getFilename(REALSENSE_DEPTH).avi";
+    char filename_color[] = "news_REALSENSE_COLOR.avi";
+    char filename_depth[] = "news_REALSENSE_DEPTH.avi";
 
     realsense_thread = new realsense_capture(filename_color, filename_depth);
     realsense_thread->start();
@@ -151,6 +151,8 @@ bool MainWindow::connect2Wear(){
             serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (serv_sock == INVALID_SOCKET) {
                 printf("main: get socket failed. %ld\n", WSAGetLastError());
+                connected = false;
+                return connected;
             }
         }
         if (::connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == SOCKET_ERROR) {
@@ -173,7 +175,8 @@ bool MainWindow::connect2Wear(){
 
 
 void MainWindow::disconnect2Wear(){
-    if(serv_sock) send_command(serv_sock, bye_c);
-    if(reciever_thread.isRunning()) reciever_thread.terminate();
+    if(serv_sock && connected) send_command(serv_sock, bye_c);
+    if(reciever_thread.isRunning()) reciever_thread.stop();
+    connected = false;
 }
 

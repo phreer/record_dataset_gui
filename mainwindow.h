@@ -34,10 +34,10 @@ private:
     bool connected = false;
     bool recieveServOn = false;
 
-    bool useCamera = true;
-    bool useWear = true;
+    bool useCamera = false;
+    bool useWear = false;
     bool useMyo = true;
-    bool useRealsense = true;
+    bool useRealsense = false;
 
 
     Ui::MainWindow *ui;

@@ -45,9 +45,10 @@ public:
     // onAccelerometerData() is called when a paired Myo has provided new accelerometer data in units of g.
     void onAccelerometerData(myo::Myo* myo, uint64_t timestamp, const myo::Vector3< float > &accel)
     {
-        accx = static_cast<int>(accel.x());
-        accy = static_cast<int>(accel.y());
-        accz = static_cast<int>(accel.z());
+        accx = static_cast<double>(accel.x());
+        accy = static_cast<double>(accel.y());
+        accz = static_cast<double>(accel.z());
+        printf("x: %f, y: %f, z: %f", accx, accy, accz);
     }
     // onGyroscopeDat() is called when a paired Myo has provided new gyroscope data in units of deg/s.
     void onGyroscopeData(myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float>& gyro)
@@ -110,5 +111,5 @@ public:
     std::array<int8_t, 8> emgSamples;
     int roll_w, pitch_w, yaw_w;
     int accx, accy, accz;
-    int gyrx, gyry, gyrz;
+    double gyrx, gyry, gyrz;
 };

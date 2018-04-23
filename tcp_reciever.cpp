@@ -63,8 +63,12 @@ void tcp_reciever::run(){
             int64_t n_left = 8;
             while (n_left > 0) {
                 if ((n_read = recv(data_sock, recv_buffer+off, n_left, 0)) < 0) {
-                    printf("tcp_reciever: recieve length failed. %ld\n", WSAGetLastError());
-                    exit(-1);
+                    if(!WSAGetLastError()==WSAEWOULDBLOCK){
+                        printf("tcp_reciever: recieve length failed. %ld\n", WSAGetLastError());
+                    }
+                    else{
+                        continue;
+                    }
                 }
                 n_left -= n_read;
                 off += n_read;
@@ -81,14 +85,18 @@ void tcp_reciever::run(){
             sprintf(filename, "%d.txt", ctime);
             FILE *file = fopen(filename, "w+");
             if (file == NULL) {
-                printf("main: open file failed.\n");
+                printf("tcp_reciever: open file failed.\n");
                 exit(-1);
             }
             //recieve file
             while (n_left > 0) {
                 if ((n_read = recv(data_sock, recv_buffer, BUFFER_SIZE, 0)) < 0) {
-                    printf("main: recieve file failed. %ld\n", WSAGetLastError());
-                    exit(-1);
+                    if(!WSAGetLastError()==WSAEWOULDBLOCK){
+                        printf("tcp_reciever: recieve file failed. %ld\n", WSAGetLastError());
+                    }
+                    else{
+                        continue;
+                    }
                 }
                 fwrite(recv_buffer, sizeof(char), n_read, file);
                 n_left -= n_read;
