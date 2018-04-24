@@ -48,7 +48,6 @@ public:
         accx = static_cast<double>(accel.x());
         accy = static_cast<double>(accel.y());
         accz = static_cast<double>(accel.z());
-        printf("x: %f, y: %f, z: %f", accx, accy, accz);
     }
     // onGyroscopeDat() is called when a paired Myo has provided new gyroscope data in units of deg/s.
     void onGyroscopeData(myo::Myo* myo, uint64_t timestamp, const myo::Vector3<float>& gyro)

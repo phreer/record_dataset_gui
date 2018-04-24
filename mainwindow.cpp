@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     if(useCamera){
+        camera_thread = new camera_capture();
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
     }
@@ -74,15 +75,13 @@ void MainWindow::stopMyo(){
 
 void MainWindow::startCamera(){
     char filename[] = "test.avi";
-    camera_thread = new camera_capture(filename);
-    camera_thread->start();
+    camera_thread->startRecord(filename);
     connect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
 }
 
 void MainWindow::stopCamera(){
     disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
-    if(camera_thread->isRunning()) camera_thread->stop();
-    camera_thread = NULL;
+    camera_thread->stopRecord();
 }
 
 /*
@@ -118,7 +117,8 @@ void MainWindow::updateUIlabel2(const QImage &image){
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
-    disconnect2Wear();
+    if(useWear) disconnect2Wear();
+    camera_thread->stop();
 }
 
 void MainWindow::startWear(){

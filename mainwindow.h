@@ -34,9 +34,9 @@ private:
     bool connected = false;
     bool recieveServOn = false;
 
-    bool useCamera = false;
+    bool useCamera = true;
     bool useWear = false;
-    bool useMyo = true;
+    bool useMyo = false;
     bool useRealsense = false;
 
 
