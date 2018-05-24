@@ -36,25 +36,34 @@ void tcp_reciever::run(){
     //socket for recieve data from wear
     recv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (recv_sock == INVALID_SOCKET) {
-        printf("main: get recv_sock failed. %ld", WSAGetLastError());
+        printf("tcp_reciever: get recv_sock failed. %ld\n", WSAGetLastError());
     }
 
     if ((bind(recv_sock, (struct sockaddr *) &recv_addr, sizeof(recv_addr))) == SOCKET_ERROR) {
-        printf("main: bind socket failed. %ld", WSAGetLastError());
+        printf("tcp_reciever: bind socket failed. %ld\n", WSAGetLastError());
     }
     if ((listen(recv_sock, 5)) == SOCKET_ERROR) {
-        printf("main: listen failed. %ld", WSAGetLastError());
+        printf("tcp_reciever: listen failed. %ld\n", WSAGetLastError());
+    }
+    unsigned long flag=1;
+    if(ioctlsocket(recv_sock, FIONBIO, &flag)!=0){
+        printf("tcp_reciever: unable to set recv_sock non-blocking. %ld\n", WSAGetLastError());
     }
     for(;;){
         if(!end){
             data_sock = accept(recv_sock, (struct sockaddr *)&send_addr, &send_addr_len);
+            if(data_sock == INVALID_SOCKET){
+                if(!WSAGetLastError()==WSAEWOULDBLOCK) printf("tcp_reciever: get INVALID SOCK. %ld\n", WSAGetLastError());
+                continue;
+            }
+
             //get the length of file
             int n_read = 0;
             int off = 0;
             int64_t n_left = 8;
             while (n_left > 0) {
                 if ((n_read = recv(data_sock, recv_buffer+off, n_left, 0)) < 0) {
-                    printf("main: recieve length failed.\n");
+                    printf("tcp_reciever: recieve length failed. %ld\n", WSAGetLastError());
                     exit(-1);
                 }
                 n_left -= n_read;
@@ -92,7 +101,6 @@ void tcp_reciever::run(){
     }
 }
 
-void tcp_reciever::stop()
-{
+void tcp_reciever::stop(){
     end = true;
 }

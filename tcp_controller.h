@@ -13,7 +13,7 @@
 
 //CONFIGURATION
 #define SERV_IP "192.168.1.199"
-#define RECV_IP "192.168.1.122"
+#define RECV_IP "192.168.1.195"
 #define SERV_PORT 1893
 
 #define MAX_CMD_LEN 32

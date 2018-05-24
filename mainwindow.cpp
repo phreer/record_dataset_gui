@@ -69,6 +69,7 @@ void MainWindow::startMyo(){
 
 void MainWindow::stopMyo(){
     if(myo_thread->isRunning()) myo_thread->stop();
+    myo_thread = NULL;
 }
 
 void MainWindow::startCamera(){
@@ -81,6 +82,7 @@ void MainWindow::startCamera(){
 void MainWindow::stopCamera(){
     disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
     if(camera_thread->isRunning()) camera_thread->stop();
+    camera_thread = NULL;
 }
 
 /*
@@ -98,18 +100,25 @@ void MainWindow::startRealsense(){
 void MainWindow::stopRealsense(){
     disconnect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
     if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
+    realsense_thread = NULL;
 }
+
 
 /*
  * Display captured image on UI
  */
 void MainWindow::updateUIlabel1(const QImage &image){
-    ui->label->setPixmap(QPixmap::fromImage(image));
+    ui->label->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
     ui->label->show();
 }
 void MainWindow::updateUIlabel2(const QImage &image){
-    ui->label_2->setPixmap(QPixmap::fromImage(image));
+
+    ui->label_2->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
     ui->label_2->show();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event){
+    disconnect2Wear();
 }
 
 void MainWindow::startWear(){

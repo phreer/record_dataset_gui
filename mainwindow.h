@@ -8,6 +8,8 @@
 #include "opencv/highgui.h"
 #include "opencv/cv.h"
 #include <QPainter>
+#include <QCloseEvent>
+
 #include "tcp_reciever.h"
 #include "tcp_controller.h"
 #include "pxcsensemanager.h"
@@ -33,14 +35,15 @@ private:
     bool recieveServOn = false;
 
     bool useCamera = true;
-    bool useWear = false;
-    bool useMyo = false;
-    bool useRealsense = false;
+    bool useWear = true;
+    bool useMyo = true;
+    bool useRealsense = true;
 
 
     Ui::MainWindow *ui;
     QImage *image;
     QImage *label2Image;
+    QTimer timer;
 
     SOCKET serv_sock=NULL;
     PXCSenseManager *pxcSenseManager;
@@ -72,6 +75,8 @@ private slots:
     void updateUIlabel1(const QImage &image);
     void updateUIlabel2(const QImage &image);
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 };
 
 #endif // MAINWINDOW_H

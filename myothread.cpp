@@ -3,6 +3,7 @@
 myothread::myothread(const char filename[]){
     strcpy_s(ofilename, filename);
     end = false;
+    hub = NULL;
 }
 
 void myothread::stop(){
@@ -21,7 +22,7 @@ void myothread::run(){
             ofile.close();
             delete hub;
             printf("myothread terminated.\n");
-            break;
+            return;
         }
     }
 }
