@@ -21,10 +21,10 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # In order to do so, uncomment the following line.
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
-INCLUDEPATH += "D:\software\opencv\build\include" \
-"D:\software\realsense_SDK\RSSDK\include" \
-"D:\software\realsense_SDK\RSSDK\sample\common\include" \
-"C:\Users\JinGroup\Desktop\record_dataset_gui\include"
+INCLUDEPATH += "C:\Program Files\opencv\build\include" \
+"E:\Program Files (x86)\Intel\RSSDK\include" \
+"E:\Program Files (x86)\Intel\RSSDK\sample\common\include" \
+"E:\SynologyDrive\codes\c++\record_v0_1\include"
 
 LIBS += -lws2_32 \
 -L"C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib\x64" \
@@ -40,23 +40,23 @@ LIBS += -lws2_32 \
 -luuid \
 -lodbc32 \
 -lodbccp32 \
--L"C:\Users\JinGroup\Desktop\record_dataset_gui\lib" \
+-L"E:\SynologyDrive\codes\c++\record_v0_1\lib" \
 -lmyo64
 
 CONFIG(debug, debug|release): {
-LIBS += -L"D:\software\opencv\build\x64\vc14\lib" \
+LIBS += -L"C:\Program Files\opencv\build\x64\vc14\lib" \
 -lopencv_world331d \
--L"D:\software\realsense_SDK\RSSDK\lib\x64" \
+-L"E:\Program Files (x86)\Intel\RSSDK\lib\x64" \
 -llibpxc_d \
--L"D:\software\realsense_SDK\RSSDK\sample\common\lib\x64\v140" \
+-L"E:\Program Files (x86)\Intel\RSSDK\sample\common\lib\x64\v140" \
 -llibpxcutils_d
 -llibpxcutilsmd_d
 } else:CONFIG(release, debug|release): {
-LIBS += -L"D:\software\opencv\build\x64\vc14\lib" \
+LIBS += -L"C:\Program Files\opencv\build\x64\vc14\lib" \
 -lopencv_world331 \
--L"D:\software\realsense_SDK\RSSDK\lib\x64" \
+-L"E:\Program Files (x86)\Intel\RSSDK\lib\x64" \
 -llibpxc \
--L"D:\software\realsense_SDK\RSSDK\\sample\commonlib\x64\v140" \
+-L"E:\Program Files (x86)\Intel\RSSDK\sample\commonlib\x64\v1400" \
 -llibpxcutils
 -llibpxcutilsmd
 }
