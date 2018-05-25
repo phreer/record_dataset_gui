@@ -115,79 +115,151 @@
       <number>2</number>
      </property>
      <item>
-      <widget class="QLabel" name="label">
-       <property name="minimumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Camera1 Preview</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Camera1 Preview</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLabel" name="camera1_fps_label">
+           <property name="text">
+            <string>Camera1 fps:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="camera1_fps_value">
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>NULL</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="minimumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Realsense Previw</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Realsense Previw</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="realsens_fps_label">
+           <property name="text">
+            <string>Realsense fps:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="realsense_fps_value">
+           <property name="text">
+            <string>NULL</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_3">
-       <property name="minimumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="baseSize">
-        <size>
-         <width>320</width>
-         <height>240</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Camera2 Previw</string>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QLabel" name="label_3">
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>320</width>
+           <height>240</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>Camera2 Previw</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="camera2_fps_label">
+           <property name="text">
+            <string>Camera2 fps:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="camera2_fps_value">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>NULL</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
      </item>
     </layout>
    </widget>

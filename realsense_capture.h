@@ -5,11 +5,17 @@
 #include <QThread>
 #include <QImage>
 #include "pxcsensemanager.h"
+#include "pxchanddata.h"
+#include "pxchandconfiguration.h"
+#include "pxchandmodule.h"
 #include <sys/types.h>
 #include "opencv2/opencv.hpp"
 #include "opencv/highgui.h"
 #include "opencv/cv.h"
 #include "time.h"
+#include "stdio.h"
+
+#define JOINT_TYPE_NUM 22
 
 class realsense_capture : public QThread
 {
@@ -27,10 +33,13 @@ private:
     cv::Mat frameColor;
     cv::Mat frameDepth;
     PXCSenseManager *pxcSenseManager;
+    PXCHandModule *pxcHandModule;
+    PXCHandData *pxcHandData;
+    FILE *file;
     time_t cTime, pTime;
     uint64_t cCnt, pCnt;
     const cv::Size size = cv::Size(640, 480);
-    const float frameRate = 60;
+    const float frameRate = 30;
 };
 
 #endif // REALSENSE_CAPTURE_H

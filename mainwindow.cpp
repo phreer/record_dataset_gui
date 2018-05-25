@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     }
 
     if(useCamera){
+        camera_thread = new camera_capture();
         connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
         connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
     }
@@ -63,7 +64,7 @@ MainWindow::~MainWindow(){
 }
 
 void MainWindow::startMyo(){
-    myo_thread = new myothread("test.csv");
+    myo_thread = new myothread("news_myo.csv");
     myo_thread->start();
 }
 
@@ -74,23 +75,21 @@ void MainWindow::stopMyo(){
 
 void MainWindow::startCamera(){
     char filename[] = "test.avi";
-    camera_thread = new camera_capture(filename);
-    camera_thread->start();
+    camera_thread->startRecord(filename);
     connect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
 }
 
 void MainWindow::stopCamera(){
     disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
-    if(camera_thread->isRunning()) camera_thread->stop();
-    camera_thread = NULL;
+    camera_thread->stopRecord();
 }
 
 /*
  * start a new thread to record realsense stream
  */
 void MainWindow::startRealsense(){
-    char filename_color[] = "getFilename(REALSENSE_COLOR).avi";
-    char filename_depth[] = "getFilename(REALSENSE_DEPTH).avi";
+    char filename_color[] = "news_REALSENSE_COLOR.avi";
+    char filename_depth[] = "news_REALSENSE_DEPTH.avi";
 
     realsense_thread = new realsense_capture(filename_color, filename_depth);
     realsense_thread->start();
@@ -118,7 +117,8 @@ void MainWindow::updateUIlabel2(const QImage &image){
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
-    disconnect2Wear();
+    if(useWear) disconnect2Wear();
+    camera_thread->stop();
 }
 
 void MainWindow::startWear(){
@@ -151,6 +151,8 @@ bool MainWindow::connect2Wear(){
             serv_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
             if (serv_sock == INVALID_SOCKET) {
                 printf("main: get socket failed. %ld\n", WSAGetLastError());
+                connected = false;
+                return connected;
             }
         }
         if (::connect(serv_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == SOCKET_ERROR) {
@@ -173,7 +175,8 @@ bool MainWindow::connect2Wear(){
 
 
 void MainWindow::disconnect2Wear(){
-    if(serv_sock) send_command(serv_sock, bye_c);
-    if(reciever_thread.isRunning()) reciever_thread.terminate();
+    if(serv_sock && connected) send_command(serv_sock, bye_c);
+    if(reciever_thread.isRunning()) reciever_thread.stop();
+    connected = false;
 }
 

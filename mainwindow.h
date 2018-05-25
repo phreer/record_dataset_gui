@@ -35,9 +35,9 @@ private:
     bool recieveServOn = false;
 
     bool useCamera = true;
-    bool useWear = true;
-    bool useMyo = true;
-    bool useRealsense = true;
+    bool useWear = false;
+    bool useMyo = false;
+    bool useRealsense = false;
 
 
     Ui::MainWindow *ui;
