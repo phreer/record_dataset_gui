@@ -62,7 +62,7 @@ LIBS += -L"C:\Program Files\opencv\build\x64\vc14\lib" \
 }
 
 SOURCES += \
-	myothread.cpp \
+    myothread.cpp \
     main.cpp \
     mainwindow.cpp \
     utils.cpp \
@@ -74,7 +74,7 @@ SOURCES += \
 
 	
 HEADERS += \
-	myothread.h \
+    myothread.h \
     mainwindow.h \
     tcp_controller.h \
     tcp_reciever.h \
