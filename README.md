@@ -14,7 +14,7 @@ Realsense SDK 可以在[这个地址](https://pan.baidu.com/s/1ufNhnLiya_17Mp17_
 
 OpenCV 可以在[这个地址](https://pan.baidu.com/s/11nCLgG5aUTlNQXdQmWc2DA)下载.
 
-关于 OpenCV 和 Realsense SDK 的配置可以参考[这篇文章](https://phreer.github.io/2018/03/28/setup_opencv_and_basic_usage.html)
+关于 OpenCV 和 Qt 的配置可以参考[这篇文章](https://phreer.github.io/2018/03/28/setup_opencv_and_basic_usage.html)
 
 ## 关于 Myo 的配置
 Myo SDK 同样包含了 lib 文件和 include 目录, 配置方法与 OpenCV 相似. 唯一不太一样的地方是需要**把动态链接文件放到生成可执行文件的目录下**.
@@ -23,13 +23,6 @@ Myo 和 PC 连接需要安装连接程序, 可以通过[这里](https://pan.baid
 ## 关于 smart watch
 我们所使用的 smart watch 基于 Android 平台, 因此采用 WiFi 进行通信. 基本的思路类似于 FTP, 使用两个套接字, 一个用于发送控制命令(开始记录, 结束记录, 传输数据等), PC 作为 Client, smart watch 为 Server. 另一个用于接收数据, PC 为 Server 接受 smart watch 的请求, 该部分使用一个单独的线程一直运行.
 
-## 文件结构
-- **record_v0_1.pro** 包含 include path, lib path, 以配置 winsock, opencv, realsense sdk等.
-- **mainWindow** 统筹各个部分, 按下 START 键时开始记录, 按下 STOP 键停止记录, 并接受 smart watch 的数据.
-- **tcp_controller** 包含 winsock2 网络编程需要的头文件, 声明数据结构, 缓冲区等.
-- **tcp_reciever** 包含一个线程类(继承自 QThread), 用于启动一个接收套接字, 接收来自 smart watch 的文件.
-
 ## 其他说明
-网络编程部分使用 winsock2 api, 可能需要安装 Visual Studio 才能使用, 我不太确定, 我使用的是 VS2015.
-其实 Qt 本身提供了网络编程 api, 或许更容易使用, 但因为我之前是在 VS 上面写的, 所以用了 winsock.
-对应的 Android 端程序请见[这个项目](https://github.com/Phreer/getAccelearationRound).
+- 网络编程部分使用 winsock2 api, 可能需要安装 Visual Studio 才能使用, 我不太确定, 我使用的是 VS2015. 其实 Qt 本身提供了网络编程 api, 或许更容易使用, 但因为我之前是在 VS 上面写的, 所以用了 winsock.
+- 对应的 Android 端程序请见[这个项目](https://github.com/Phreer/getAccelearationRound).
