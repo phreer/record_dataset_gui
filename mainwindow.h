@@ -9,9 +9,10 @@
 #include "opencv/cv.h"
 #include <QPainter>
 #include <QCloseEvent>
+#include <QString>
 
 #include "tcp_reciever.h"
-#include "tcp_controller.h"
+#include "utils.h"
 #include "pxcsensemanager.h"
 #include "time.h"
 #include "camera_capture.h"
@@ -29,6 +30,25 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void startCamera();
+    void startRealsense();
+    void startWear();
+    void startMyo();
+
+    void initAll(int volID, int restStateID, int gestureID);
+    void startAll();
+    void stopAll();
+
+    void recordVol(int id);
+    void recordUnit(int volID, int restStateID, int gestureID);
+
+    void stopCamera();
+    void stopWearandRecv();
+    void stopRealsense();
+    void stopMyo();
+
+    bool connect2Wear();
+    void disconnect2Wear();
 
 private:
     bool connected = false;
@@ -37,7 +57,7 @@ private:
     bool useCamera = true;
     bool useWear = false;
     bool useMyo = false;
-    bool useRealsense = false;
+    bool useRealsense = true;
 
 
     Ui::MainWindow *ui;
@@ -53,27 +73,20 @@ private:
     myo::Myo* a_myo;
     DataCollector collector;
 
-    camera_capture *camera_thread;
-    realsense_capture *realsense_thread;
-    myothread *myo_thread;
-    tcp_reciever reciever_thread;
+    camera_capture *camera1Thread, *camera2Thread;
+    realsense_capture *realsenseThread;
+    myothread *myoThread;
+    tcp_reciever recieverThread;
 
 private slots:
-    void startCamera();
-    void startRealsense();
-    void startWear();
-    void startMyo();
+    // used for updating videos
+    void updateCamera1(const QImage &image);
+    void updateRealsense(const QImage &image);
+    void updateFPSCamera1(const double fps);
 
-    void stopCamera();
-    void stopWearandRecv();
-    void stopRealsense();
-    void stopMyo();
-
-    bool connect2Wear();
-    void disconnect2Wear();
-
-    void updateUIlabel1(const QImage &image);
-    void updateUIlabel2(const QImage &image);
+    // triggered by button
+    void startRecordProgress();
+    void stopRecordProgress();
 
 protected:
     void closeEvent(QCloseEvent *event) override;

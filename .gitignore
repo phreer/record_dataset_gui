@@ -1,3 +1,4 @@
 ./debug
 ./release
 ./record_v0_1.pro.user
+.qmake.stash

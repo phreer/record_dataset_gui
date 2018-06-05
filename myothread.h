@@ -1,27 +1,29 @@
 #ifndef MYOTHREAD_H
 #define MYOTHREAD_H
 #include <QThread>
+#include <QMutex>
+#include <QWaitCondition>
 #include <iostream>
 #include <QTime>
 #include <cstring>
 #include "myodatacollector.cpp"
 
-#define MAX_FILENAME 512
-
 class myothread : public QThread{
     Q_OBJECT
 public:
-    myothread(const char filename[]);
+    myothread();
     void stop();
-
+    void init(const char *filename);
+    void startRecord();
+    void stopRecord();
 protected:
     void run() override;
-
 private:
     void initMyo();
     std::ofstream ofile;
-    char ofilename[MAX_FILENAME];
-    bool end = false;
+    QMutex mutex;
+    QWaitCondition condition;
+    bool end, toRecord;
     myo::Hub *hub;
     myo::Myo *a_myo;
     DataCollector collector;

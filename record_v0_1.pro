@@ -76,11 +76,11 @@ SOURCES += \
 HEADERS += \
     myothread.h \
     mainwindow.h \
-    tcp_controller.h \
     tcp_reciever.h \
     camera_capture.h \
     realsense_capture.h \
-    myothread.h
+    myothread.h \
+    utils.h
 
 FORMS += \
     mainwindow.ui

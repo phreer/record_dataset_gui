@@ -1,8 +1,8 @@
 #include "camera_capture.h"
 
-camera_capture::camera_capture(){
+camera_capture::camera_capture(int cameraID){
     if(!cap.isOpened())
-        if(!cap.open(1)){
+        if(!cap.open(cameraID)){
             printf("camera_capture: unable to open camera!");
         }
 
@@ -12,7 +12,7 @@ camera_capture::camera_capture(){
     toRecord = false;
 }
 
-void camera_capture::startRecord(char filename[]){
+void camera_capture::init(char *filename){
     mutex.lock();
     if(wrt.isOpened()) wrt.release();
     wrt.open(filename, CV_FOURCC('D','I','V','X'), frameRate, \
@@ -20,10 +20,13 @@ void camera_capture::startRecord(char filename[]){
                       int(cap.get(CV_CAP_PROP_FRAME_HEIGHT))),\
              true);
     mutex.unlock();
+    if(wrt.isOpened()) printf("Video writer opened.\n");
+    else printf("Unable to open video writer.\n");
+}
 
+void camera_capture::startRecord(){
     toRecord = true;
     end = false;
-
     if(!isRunning()){
         start();
     }else{
@@ -49,6 +52,8 @@ void camera_capture::run(){
     for(;;){
         if(!toRecord){
             mutex.lock();
+            if(wrt.isOpened()) wrt.release();
+            printf("camera thread is sleeping now.\n");
             condition.wait(&mutex);
             mutex.unlock();
         }
@@ -60,10 +65,12 @@ void camera_capture::run(){
                     mutex.lock();
                     wrt << img;
                     mutex.unlock();
+                    mutex.lock();
                     cv::cvtColor(img, img, CV_BGR2RGB);
                     cv::flip(img, img, 1);
                     QImage image((const uchar*) (img.data), img.cols, img.rows, QImage::Format_RGB888);
                     emit imageReady(image);
+                    mutex.unlock();
                     cCnt ++;
                     if((cCnt-pCnt)==200){
                         time(&cTime);

@@ -15,8 +15,9 @@ class camera_capture : public QThread
 {
         Q_OBJECT
 public:
-    camera_capture();
-    void startRecord(char filename[]);
+    camera_capture(int cameraID);
+    void init(char *filename);
+    void startRecord();
     void stopRecord();
     void stop();
 

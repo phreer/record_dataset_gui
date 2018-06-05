@@ -37,16 +37,12 @@ int write3DFloat32(PXCPoint3DF32 point, FILE *file){
     return fprintf_s(file, "(%f, %f, %f)", double(point.x), double(point.y), double(point.z));
 }
 
-
-realsense_capture::realsense_capture(const char filename_color[], const char filename_depth[]){
+realsense_capture::realsense_capture(){
+    mutex.lock();
     pxcStatus status;
     end = false;
     pCnt = cCnt = 0;
     time(&pTime);
-    file = fopen("joints_data.txt", "w");
-
-    this->writerColorRe.open(filename_color, CV_FOURCC('D','I','V','X'), frameRate, size, true);
-    this->writerDepthRe.open(filename_depth, CV_FOURCC('D','I','V','X'), frameRate, size, false);
     this->pxcSenseManager = PXCSenseManager::CreateInstance();
 
     // enable hand tracking
@@ -58,10 +54,12 @@ realsense_capture::realsense_capture(const char filename_color[], const char fil
     }
 
     status = pxcSenseManager->EnableStream(PXCCapture::STREAM_TYPE_COLOR, \
-                                  size.width, \
-                                  size.height, \
-                                  frameRate);
-                                  //PXCCapture::Device::STREAM_OPTION_STRONG_STREAM_SYNC);
+                                            size.width, \
+                                            size.height, \
+                                            frameRate);
+    // PXCCapture::Device::STREAM_OPTION_STRONG_STREAM_SYNC);
+    // don't work, so commented out
+
     if(status==pxcStatus::PXC_STATUS_NO_ERROR) {
         printf("Enable realsense color stream successfully.\n");
     }else{
@@ -98,10 +96,61 @@ realsense_capture::realsense_capture(const char filename_color[], const char fil
     //initialize Mat to store image from realsense
     frameColor = cv::Mat::zeros(size, CV_8UC3);
     frameDepth = cv::Mat::zeros(size, CV_8UC1);
+    mutex.unlock();
 }
 
 void realsense_capture::stop(){
+    mutex.lock();
     end = true;
+    condition.wakeOne();
+    mutex.unlock();
+}
+
+void realsense_capture::stopRecord(){
+    toRecord = false;
+}
+
+void realsense_capture::init(const char *filename){
+    char filenames[5][256];
+    strcpy_s(filenames[0], filename);
+    strcat_s(filenames[0], "_color.avi");
+
+    strcpy_s(filenames[1], filename);
+    strcat_s(filenames[1], "_depth.avi");
+
+    strcpy_s(filenames[0], filename);
+    strcat_s(filenames[0], "_color_joints.avi");
+
+    strcpy_s(filenames[1], filename);
+    strcat_s(filenames[1], "_depth_joints.avi");
+
+    strcpy_s(filenames[4], filename);
+    strcat_s(filenames[4], "_joints.txt");
+    mutex.lock();
+    file = fopen(filenames[2], "w");
+
+    if(writerColorRe.isOpened()) writerColorRe.release();
+    if(writerDepthRe.isOpened()) writerDepthRe.release();
+    if(writerColorJoints.isOpened()) writerColorRe.release();
+    if(writerDepthJoints.isOpened()) writerDepthRe.release();
+
+    this->writerColorRe.open(filenames[0], CV_FOURCC('D','I','V','X'), frameRate, size, true);
+    this->writerDepthRe.open(filenames[1], CV_FOURCC('D','I','V','X'), frameRate, size, false);
+    this->writerColorJoints.open(filenames[2], CV_FOURCC('D','I','V','X'), frameRate, size, true);
+    this->writerDepthJoints.open(filenames[3], CV_FOURCC('D','I','V','X'), frameRate, size, false);
+    mutex.unlock();
+}
+
+void realsense_capture::startRecord(){
+    end = false;
+    toRecord = true;
+    if(!isRunning()){
+        start();
+    }else{
+        mutex.lock();
+        condition.wakeOne();
+        mutex.unlock();
+    }
 }
 
 void realsense_capture::run(){
@@ -109,25 +158,25 @@ void realsense_capture::run(){
     // so that we can run this
     for(;;){
         if(!end){
+            if(!toRecord){
+                mutex.lock();
+                if(writerColorRe.isOpened()) writerColorRe.release();
+                if(writerDepthRe.isOpened()) writerDepthRe.release();
+                if(writerColorJoints.isOpened()) writerColorRe.release();
+                if(writerDepthJoints.isOpened()) writerDepthRe.release();
+                condition.wait(&mutex);
+                mutex.unlock();
+            }
+
+            mutex.lock();
+            PXCHandData::IHand *ihand = 0;
+            PXCHandData::JointData jointData;
+            bool hasJointData;
             //QuerySample function will NULL untill all frames are available
             //unless you set its param ifall false
             if(pxcSenseManager->AcquireFrame(true)<pxcStatus::PXC_STATUS_NO_ERROR) break;
             PXCCapture::Sample *sample = pxcSenseManager->QuerySample();
             pxcHandData->Update();
-            PXCHandData::IHand *ihand = 0;
-            PXCHandData::JointData jointData[JOINT_TYPE_NUM];
-
-            // Now only one hand is supoorted
-            pxcHandData->QueryHandData(PXCHandData::ACCESS_ORDER_NEAR_TO_FAR, 0, ihand);
-//            if(ihand->HasTrackedJoints()) {
-//                for(int i=0;i<JOINT_TYPE_NUM;i++){
-//                    ihand->QueryTrackedJoint(i, jointData[i]);
-//                    write3DFloat32(jointData[i].positionWorld, file);
-//                    fprintf(file, "\n");
-//                }
-
-//            }
-
             if(sample && !sample->IsEmpty()){
                 frameColor = PXCImage2CVMat(sample->color, PXCImage::PIXEL_FORMAT_RGB24);
                 PXCImage2CVMat(sample->depth, PXCImage::PIXEL_FORMAT_DEPTH_F32).convertTo(frameDepth, CV_8UC1);
@@ -135,13 +184,32 @@ void realsense_capture::run(){
                 writerColorRe << frameColor;
                 writerDepthRe << frameDepth;
 
+                // Now only one hand is supoorted
+                pxcHandData->QueryHandData(PXCHandData::ACCESS_ORDER_NEAR_TO_FAR, 0, ihand);
+                if(ihand){
+                    if(ihand->HasTrackedJoints()) {
+                        hasJointData = true;
+                        for(int i=0;i<JOINT_TYPE_NUM;i++){
+                            ihand->QueryTrackedJoint(JOINTS[i], jointData);
+                            cv::circle(frameColor, cv::Point(int(jointData.positionImage.x), \
+                                                             int(jointData.positionImage.y)), \
+                                       5, cv::Scalar(int(2.54*jointData.confidence), 0, 0), cv::FILLED);
+                            cv::circle(frameDepth, cv::Point(int(jointData.positionImage.x), \
+                                                             int(jointData.positionImage.y)), \
+                                       5, cv::Scalar(int(2.54*jointData.confidence)), cv::FILLED);
+                        }
+                    }
+                }
+
+                writerColorJoints << frameColor;
+                writerDepthJoints << frameDepth;
+
                 QImage image((const uchar*)(frameDepth.data), \
                              frameDepth.cols, \
                              frameDepth.rows, \
                              QImage::Format_Grayscale8);
                 emit imageReady(image);
                 pxcSenseManager->ReleaseFrame();
-
                 cCnt ++;
                 if((cCnt-pCnt)==200){
                     time(&cTime);
@@ -150,13 +218,17 @@ void realsense_capture::run(){
                     pCnt = cCnt;
                     pTime = cTime;
                 }
-
+                mutex.unlock();
             }
         }else{
+            mutex.lock();
             if(pxcSenseManager->IsConnected()) pxcSenseManager->Release();
-            if(writerColorRe.isOpened())writerColorRe.release();
-            if(writerDepthRe.isOpened())writerDepthRe.release();
-            fclose(file);
+            if(writerColorRe.isOpened()) writerColorRe.release();
+            if(writerDepthRe.isOpened()) writerDepthRe.release();
+            if(writerColorJoints.isOpened()) writerColorRe.release();
+            if(writerDepthJoints.isOpened()) writerDepthRe.release();
+            // fclose(file);
+            mutex.unlock();
             printf("realsense_thread terminated.\n");
             return;
         }

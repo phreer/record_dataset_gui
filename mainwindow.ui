@@ -23,79 +23,13 @@
    <bool>true</bool>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="startButton">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>650</y>
-      <width>426</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Start</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="stopButton">
-    <property name="geometry">
-     <rect>
-      <x>430</x>
-      <y>650</y>
-      <width>426</width>
-      <height>23</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Stop</string>
-    </property>
-   </widget>
-   <widget class="QWidget" name="horizontalLayoutWidget">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>670</y>
-      <width>1281</width>
-      <height>25</height>
-     </rect>
-    </property>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="connectButton">
-       <property name="text">
-        <string>Connect</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="disconnectButton">
-       <property name="text">
-        <string>Disconnect</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="state_label">
-       <property name="text">
-        <string>State: </string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="state">
-       <property name="text">
-        <string>Not Connected</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
    <widget class="QWidget" name="horizontalLayoutWidget_2">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>0</y>
       <width>1281</width>
-      <height>441</height>
+      <height>511</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="previewLayout">
@@ -117,7 +51,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QLabel" name="label">
+        <widget class="QLabel" name="camera1Previw">
          <property name="minimumSize">
           <size>
            <width>320</width>
@@ -139,6 +73,9 @@
          <property name="text">
           <string>Camera1 Preview</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -151,7 +88,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="camera1_fps_value">
+          <widget class="QLabel" name="camera1FPSValue">
            <property name="focusPolicy">
             <enum>Qt::NoFocus</enum>
            </property>
@@ -167,7 +104,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="realsensePreview">
          <property name="minimumSize">
           <size>
            <width>320</width>
@@ -189,6 +126,9 @@
          <property name="text">
           <string>Realsense Previw</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -201,7 +141,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="realsense_fps_value">
+          <widget class="QLabel" name="realsenseFPSValue">
            <property name="text">
             <string>NULL</string>
            </property>
@@ -214,7 +154,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
-        <widget class="QLabel" name="label_3">
+        <widget class="QLabel" name="camera2Preview">
          <property name="minimumSize">
           <size>
            <width>320</width>
@@ -236,6 +176,9 @@
          <property name="text">
           <string>Camera2 Previw</string>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
        <item>
@@ -248,7 +191,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QLabel" name="camera2_fps_value">
+          <widget class="QLabel" name="camera1FPSValue_2">
            <property name="enabled">
             <bool>true</bool>
            </property>
@@ -258,6 +201,153 @@
           </widget>
          </item>
         </layout>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>520</y>
+      <width>1281</width>
+      <height>181</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QLabel" name="hintLabel">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>20</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Click Ready button when you are ready.</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Volunteer ID: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="volIDLabel">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>NULL</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Rest State: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="restStateIDLabel">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>NULL</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_8">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>Gesture ID: </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="gestureIDLabel">
+         <property name="font">
+          <font>
+           <pointsize>16</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>NULL</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QPushButton" name="startRecordProgressButton">
+         <property name="text">
+          <string>Start Record Progress</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="stopRecordProgressButton">
+         <property name="text">
+          <string>Stop Record Progress</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QPushButton" name="readyButton">
+         <property name="text">
+          <string>Ready</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="restartButton">
+         <property name="text">
+          <string>Restart</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>

@@ -1,4 +1,5 @@
-#include "tcp_controller.h"
+#include "utils.h"
+
 int sendn(SOCKET sock, void * buffer_ptr, size_t len) {
     size_t n_left = len;
     size_t n_written = 0;
@@ -21,11 +22,25 @@ void set_addr_s(struct sockaddr_in *addr, const char *ip, u_short port) {
     inet_pton(AF_INET, ip, &addr->sin_addr);
 }
 
-bool send_command(SOCKET socket, int c) {
+bool send_command(SOCKET socket, command_t c) {
     strcpy_s(send_buffer, BUFFER_SIZE, COMMAND[c]);
     if (sendn(socket, send_buffer, COMMAND_LEN) != COMMAND_LEN) {
         printf("send_command: send error. %ld\n", WSAGetLastError());
         return false;
     }
     return true;
+}
+
+/*
+ * transform 64 byte int in network byte order to host byte order
+ */
+int64_t ntoh64(void *ptr){
+    char *cptr = (char*) ptr;
+    char tmp_buffer[8];
+    for(int i=0; i<8; i++){
+        tmp_buffer[7-i] = *(cptr+i);
+        printf("%x", *(cptr+i));
+    }
+    int64_t res = *((int64_t*)tmp_buffer);
+    return res;
 }

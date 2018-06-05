@@ -1,6 +1,7 @@
-#ifndef TCP_CONTROLLER_H
-#define TCP_CONTROLLER_H
+#ifndef UTILS_H
+#define UTILS_H
 
+#include <cstdint>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -11,7 +12,6 @@
 #include <io.h>
 #include <time.h>
 
-//CONFIGURATION
 #define SERV_IP "192.168.1.199"
 #define RECV_IP "192.168.1.195"
 #define SERV_PORT 1893
@@ -25,11 +25,13 @@
 
 static char send_buffer[BUFFER_SIZE], recv_buffer[BUFFER_SIZE];
 
-int sendn(SOCKET sock, void * buffer_ptr, size_t len);
-void set_addr_s(struct sockaddr_in *addr, const char *ip, u_short port);
-bool send_command(SOCKET scoket, int c);
-
 enum command_t { hello_c, start_c, stop_c, send_c, bye_c };
 static const char* COMMAND[] = { "HELLO", "START", "STOP0", "SEND0", "BYE00" };
 
-#endif // TCP_CONTROLLER_H
+// send n bytes in buffer to a given socket
+int sendn(SOCKET sock, void * buffer_ptr, size_t len);
+// util functions for setting socket address
+void set_addr_s(struct sockaddr_in *addr, const char *ip, u_short port);
+bool send_command(SOCKET scoket, command_t c);
+int64_t ntoh64(void *ptr);
+#endif // UTILS_H

@@ -6,27 +6,19 @@
  */
 #pragma comment(lib, "Ws2_32.lib") //add the dependency file for winsock2
 
-
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "utils.cpp"
-#include "tcp_reciever.cpp"
-
-
 
 /*
  * used for acquiring a file name to save video stream
  */
-char* getFilename(){
-    char filename[] = "test.avi";
-    return filename;
-}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->hintLabel->setText("Click start to start record progress.");
     image = new QImage();
 
     //setup winsock2
@@ -37,88 +29,199 @@ MainWindow::MainWindow(QWidget *parent) :
         printf("main: startup wsa failed!\n");
     }
 
+    int cameraID1 = 1;
+    int cameraID2 = 1;
     if(useCamera){
-        camera_thread = new camera_capture();
-        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startCamera()));
-        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopCamera()));
-    }
-    if(useWear){
-        reciever_thread.start();
-        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startWear()));
-        connect(ui->stopButton, SIGNAL(clicked()), this, SLOT(stopWearandRecv()));
-        connect(ui->connectButton, SIGNAL(clicked()), this, SLOT(connect2Wear()));
-        connect(ui->disconnectButton, SIGNAL(clicked()), this, SLOT(disconnect2Wear()));
+        camera1Thread = new camera_capture(cameraID1);
+//        camera2Thread = new camera_capture(cameraID2);
     }
     if(useMyo){
-        connect(ui->startButton, SIGNAL(clicked(bool)), this, SLOT(startMyo()));
-        connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopMyo()));
+        myoThread = new myothread();
     }
     if(useRealsense){
-        connect(ui->startButton, SIGNAL(clicked()), this, SLOT(startRealsense()));
-        connect(ui->stopButton, SIGNAL(clicked(bool)), this, SLOT(stopRealsense()));
+        realsenseThread = new realsense_capture();
     }
+    connect(ui->startRecordProgressButton, SIGNAL(clicked(bool)), \
+            this, SLOT(startRecordProgress()));
+    connect(ui->stopRecordProgressButton, SIGNAL(clicked(bool)), \
+            this, SLOT(stopRecordProgress()));
+//    if(useWear){
+//        recieverThread.start();
+//    }
 }
 
 MainWindow::~MainWindow(){
     delete ui;
 }
 
+void MainWindow::initAll(int volID, int restStateID, int gestureID){
+    char filename[512];
+    if(useCamera) {
+        sprintf(filename, "camera_%d_vol_%d_restState_%d_geture_%d.avi", \
+            1, volID, restStateID, gestureID);
+        camera1Thread->init(filename);
+        sprintf(filename, "camera_%d_vol_%d_restState_%d_geture_%d.avi", \
+            2, volID, restStateID, gestureID);
+//        camera2Thread->init(filename);
+    }
+    if(useMyo) {
+        sprintf(filename, "myo_vol_%d_restState_%d_geture_%d.csv", \
+            volID, restStateID, gestureID);
+        myoThread->init(filename);
+    }
+    if(useRealsense) {
+        sprintf(filename, "realsense_vol_%d_restState_%d_geture_%d", \
+            volID, restStateID, gestureID);
+        realsenseThread->init(filename);
+    }
+}
+
+void MainWindow::startAll(){
+    if(useCamera) {
+        startCamera();
+    }
+    if(useMyo) {
+        startMyo();
+    }
+    if(useRealsense) {
+        startRealsense();
+    }
+    if(useWear) {
+        startWear();
+    }
+}
+
+void MainWindow::stopAll(){
+    if(useCamera) stopCamera();
+    if(useRealsense) stopRealsense();
+    if(useMyo) stopMyo();
+    if(useWear) stopWearandRecv();
+}
+
+void MainWindow::startRecordProgress(){
+    int volNum = 10;
+    ui->startRecordProgressButton->setDisabled(true);
+    ui->stopRecordProgressButton->setEnabled(true);
+    for(int volID=0; volID<volNum; volID++){
+        ui->volIDLabel->setText(QString::number(volID));
+        recordVol(volID);
+        ui->hintLabel->setText(QString("All done! Thank you!"));
+    }
+    ui->hintLabel->setText("All volunteers have been recorded!");
+    ui->startRecordProgressButton->setEnabled(true);
+    ui->stopRecordProgressButton->setDisabled(true);
+}
+
+void MainWindow::stopRecordProgress(){
+    stopAll();
+    ui->hintLabel->setText("Click start to start record progress.");
+    ui->startRecordProgressButton->setEnabled(true);
+    ui->stopRecordProgressButton->setDisabled(true);
+}
+
+void MainWindow::recordVol(int id){
+    int restStateNum = 3;
+    int gestureNum = 10;
+    QTime time;
+    time.start();
+    for(int restStateID=0; restStateID<restStateNum; restStateID++){
+        ui->restStateIDLabel->setText(QString::number(restStateID));
+        ui->hintLabel->setText(QString("Rest State ")+QString::number(restStateID));
+        time.restart();
+        while(time.elapsed()<20000){
+            QCoreApplication::processEvents();
+        }
+        for(int gestureID=0; gestureID<gestureNum; gestureID++){
+            ui->gestureIDLabel->setText(QString::number(gestureID));
+            ui->hintLabel->setText("Ready");
+            time.restart();
+            // wait for 5s to record and stay responsible for evnets
+            while(time.elapsed()<5000){
+                QCoreApplication::processEvents();
+            }
+            ui->hintLabel->setText("Recording...");
+            recordUnit(id, restStateID, gestureID);
+        }
+    }
+}
+
+void MainWindow::recordUnit(int volID, int restStateID, int gestureID){
+    QTime time;
+    initAll(volID, restStateID, gestureID);
+    startAll();
+    time.restart();
+    while(time.elapsed()<20000){
+        QCoreApplication::processEvents();
+    }
+    stopAll();
+}
+
 void MainWindow::startMyo(){
-    myo_thread = new myothread("news_myo.csv");
-    myo_thread->start();
+    myoThread->startRecord();
 }
 
 void MainWindow::stopMyo(){
-    if(myo_thread->isRunning()) myo_thread->stop();
-    myo_thread = NULL;
+    myoThread->stopRecord();
 }
 
 void MainWindow::startCamera(){
-    char filename[] = "test.avi";
-    camera_thread->startRecord(filename);
-    connect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
+    camera1Thread->startRecord();
+//    camera2Thread->stopRecord();
+    connect(camera1Thread, SIGNAL(imageReady(QImage)), this, SLOT(updateCamera1(QImage)));
+    connect(camera1Thread, SIGNAL(fpsReady(double)), this, SLOT(updateFPSCamera1(double)));
+//    connect(camera2Thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel3(QImage)));
 }
 
 void MainWindow::stopCamera(){
-    disconnect(camera_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel1(QImage)));
-    camera_thread->stopRecord();
+    disconnect(camera1Thread, SIGNAL(imageReady(QImage)), this, SLOT(updateCamera1(QImage)));
+    disconnect(camera1Thread, SIGNAL(fpsReady(double)), this, SLOT(updateFPSCamera1(double)));
+//    disconnect(camera2Thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel3(QImage)));
+    camera1Thread->stopRecord();
+//    camera2Thread->stopRecord();
 }
 
 /*
  * start a new thread to record realsense stream
  */
 void MainWindow::startRealsense(){
-    char filename_color[] = "news_REALSENSE_COLOR.avi";
-    char filename_depth[] = "news_REALSENSE_DEPTH.avi";
-
-    realsense_thread = new realsense_capture(filename_color, filename_depth);
-    realsense_thread->start();
-    connect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
+    realsenseThread->startRecord();
+    connect(realsenseThread, SIGNAL(imageReady(QImage)), this, SLOT(updateRealsense(QImage)));
 }
 
 void MainWindow::stopRealsense(){
-    disconnect(realsense_thread, SIGNAL(imageReady(QImage)), this, SLOT(updateUIlabel2(QImage)));
-    if(realsense_thread && realsense_thread->isRunning()) realsense_thread->stop();
-    realsense_thread = NULL;
+    disconnect(realsenseThread, SIGNAL(imageReady(QImage)), this, SLOT(updateRealsense(QImage)));
+    realsenseThread->stopRecord();
 }
 
 
 /*
  * Display captured image on UI
  */
-void MainWindow::updateUIlabel1(const QImage &image){
-    ui->label->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
-    ui->label->show();
+void MainWindow::updateCamera1(const QImage &image){
+    ui->camera1Previw->setPixmap(QPixmap::fromImage(image.scaled(ui->camera1Previw->size())));
+    ui->camera1Previw->show();
 }
-void MainWindow::updateUIlabel2(const QImage &image){
+void MainWindow::updateRealsense(const QImage &image){
+    ui->realsensePreview->setPixmap(QPixmap::fromImage(image.scaled(ui->camera1Previw->size())));
+    ui->realsensePreview->show();
+}
 
-    ui->label_2->setPixmap(QPixmap::fromImage(image.scaled(ui->label->size())));
-    ui->label_2->show();
+void MainWindow::updateFPSCamera1(const double fps){
+    ui->camera1FPSValue->setText(QString::number(fps));
 }
 
 void MainWindow::closeEvent(QCloseEvent *event){
-    if(useWear) disconnect2Wear();
-    camera_thread->stop();
+    if(useCamera){
+        camera1Thread->stop();
+//        camera2Thread->stop();
+    }
+    if(useRealsense){
+        realsenseThread->stop();
+    }
+    if(useMyo){
+        myoThread->stop();
+    }
+//    if(useWear) disconnect2Wear();
 }
 
 void MainWindow::startWear(){
@@ -133,8 +236,6 @@ void MainWindow::stopWearandRecv(){
         send_command(serv_sock, send_c);
     }
 }
-
-
 /*
  * setup a socket and try to connect to the server(smart watch)
  * connected will be set true if connect successfully
@@ -162,21 +263,18 @@ bool MainWindow::connect2Wear(){
             connected = true;
             send_command(serv_sock, hello_c);
             if(!recieveServOn) {
-                reciever_thread.start();
+                recieverThread.start();
                 recieveServOn = true;
             }
-            if(!reciever_thread.isRunning()) reciever_thread.start();
+            if(!recieverThread.isRunning()) recieverThread.start();
         }
-
         return connected;
     }
 }
 
-
-
 void MainWindow::disconnect2Wear(){
     if(serv_sock && connected) send_command(serv_sock, bye_c);
-    if(reciever_thread.isRunning()) reciever_thread.stop();
+    if(recieverThread.isRunning()) recieverThread.stop();
     connected = false;
 }
 

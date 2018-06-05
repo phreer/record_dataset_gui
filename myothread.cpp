@@ -1,19 +1,48 @@
 #include "myothread.h"
 
-myothread::myothread(const char filename[]){
-    strcpy_s(ofilename, filename);
+myothread::myothread(){
     end = false;
     hub = NULL;
+    initMyo();
 }
 
 void myothread::stop(){
+    mutex.lock();
     end = true;
+    condition.wakeOne();
+    mutex.unlock();
+}
+
+void myothread::init(const char *filename){
+    if(ofile.is_open()) ofile.close();
+    ofile.open(filename, std::ios::out | std::ios::app);
+}
+
+void myothread::startRecord(){
+    mutex.lock();
+    toRecord = true;
+    mutex.unlock();
+
+    if(!isRunning()){
+        start();
+    }else{
+        mutex.lock();
+        condition.wakeOne();
+        mutex.unlock();
+    }
+}
+
+void myothread::stopRecord(){
+    toRecord = false;
 }
 
 void myothread::run(){
-    if(!hub) initMyo();
-    if(!ofile.is_open()) ofile.open(ofilename, std::ios::out | std::ios::app);
     for(;;){
+        if(!toRecord){
+            mutex.lock();
+            condition.wait(&mutex);
+            mutex.unlock();
+        }
         if(!end){
             hub->run(1000/sample_rate);
             collector.print();

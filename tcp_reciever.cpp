@@ -7,24 +7,8 @@
  */
 #include "tcp_reciever.h"
 
-
-
 tcp_reciever::tcp_reciever(){
     end = false;
-}
-
-/*
- * transform 64 byte int in network byte order to host byte order
- */
-int64_t ntoh64(void *ptr){
-    char *cptr = (char*) ptr;
-    char tmp_buffer[8];
-    for(int i=0; i<8; i++){
-        tmp_buffer[7-i] = *(cptr+i);
-        printf("%x", *(cptr+i));
-    }
-    int64_t res = *((int64_t*)tmp_buffer);
-    return res;
 }
 
 void tcp_reciever::run(){
@@ -52,8 +36,9 @@ void tcp_reciever::run(){
     for(;;){
         if(!end){
             data_sock = accept(recv_sock, (struct sockaddr *)&send_addr, &send_addr_len);
-            if(data_sock == INVALID_SOCKET){
-                if(!WSAGetLastError()==WSAEWOULDBLOCK) printf("tcp_reciever: get INVALID SOCK. %ld\n", WSAGetLastError());
+            if(data_sock==INVALID_SOCKET){
+                if(!WSAGetLastError()==WSAEWOULDBLOCK) // no bracket
+                    printf("tcp_reciever: get INVALID SOCK. %ld\n", WSAGetLastError());
                 continue;
             }
 
@@ -63,7 +48,7 @@ void tcp_reciever::run(){
             int64_t n_left = 8;
             while (n_left > 0) {
                 if ((n_read = recv(data_sock, recv_buffer+off, n_left, 0)) < 0) {
-                    if(!WSAGetLastError()==WSAEWOULDBLOCK){
+                    if(WSAGetLastError()!=WSAEWOULDBLOCK){
                         printf("tcp_reciever: recieve length failed. %ld\n", WSAGetLastError());
                     }
                     else{
@@ -78,11 +63,11 @@ void tcp_reciever::run(){
             int64_t *length = (int64_t*)recv_buffer;
             n_left = ntoh64(length);
 
-            printf("Length: %d\n", n_left);
+            printf("Length: %ld\n", n_left);
             char filename[FILENAME_SIZE];
             time_t ctime;
             time(&ctime);
-            sprintf(filename, "%d.txt", ctime);
+            sprintf(filename, "%ld.txt", ctime);
             FILE *file = fopen(filename, "w+");
             if (file == NULL) {
                 printf("tcp_reciever: open file failed.\n");
@@ -91,7 +76,7 @@ void tcp_reciever::run(){
             //recieve file
             while (n_left > 0) {
                 if ((n_read = recv(data_sock, recv_buffer, BUFFER_SIZE, 0)) < 0) {
-                    if(!WSAGetLastError()==WSAEWOULDBLOCK){
+                    if(WSAGetLastError()!=WSAEWOULDBLOCK){
                         printf("tcp_reciever: recieve file failed. %ld\n", WSAGetLastError());
                     }
                     else{
